@@ -14,5 +14,7 @@
             "name": "Robert Jones II",
             "email": "rjones@corporatewebimage.com"
         }
-    ]
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true 
 }
