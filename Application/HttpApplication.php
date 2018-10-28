@@ -2,6 +2,7 @@
 
 namespace WebImage\Application;
 
+use League\Route\Middleware\StackAwareInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use WebImage\Core\ArrayHelper;
@@ -67,7 +68,7 @@ class HttpApplication extends AbstractApplication {
 	/**
 	 * Get route collector
 	 *
-	 * @return RouteCollectionInterface
+	 * @return RouteCollectionInterface|StackAwareInterface
 	 */
 	public function routes()
 	{

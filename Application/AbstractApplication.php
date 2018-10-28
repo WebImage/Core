@@ -127,20 +127,13 @@ abstract class AbstractApplication implements ApplicationInterface
 			$r = new \ReflectionObject($this);
 			$dir = $rootDir = dirname($r->getFileName());
 
-			while (!file_exists($dir.'/composer.json')) {
-				if ($dir === dirname($dir)) {
-					return $this->projectPath = $rootDir;
-				}
+			$composerFiles = [];
+			while ($dir !== dirname($dir)) {
+				if (file_exists($dir . '/composer.json')) $composerFiles[] = $dir;
 				$dir = dirname($dir);
 			}
 
-			/* $appDir = $this->getConfig()
-				->get('app', new Config())
-				->get('paths', new Config())
-				->get('app', 'app'); */
-			$dir .= '/app';
-
-			$this->projectPath = $dir;
+			$this->projectPath = count($composerFiles) == 0 ? $rootDir : array_pop($composerFiles) . '/app';
 		}
 
 		return $this->projectPath;
