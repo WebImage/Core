@@ -29,7 +29,7 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 
 	private function isAssocArray(array $data)
 	{
-		return array_keys($data) !== range(0, count($data) - 1);
+		return count($data) > 0 && array_keys($data) !== range(0, count($data) - 1);
 	}
 
 	/**
