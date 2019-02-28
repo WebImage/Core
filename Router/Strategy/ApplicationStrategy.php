@@ -5,11 +5,17 @@ namespace WebImage\Router\Strategy;
 use Exception;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
-use League\Route\Route;
+use League\Route\Http\Exception\NotFoundException;
+use League\Route\Route As LeagueRoute;
 use League\Route\Strategy\ApplicationStrategy as BaseApplicationStrategy;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use WebImage\Controllers\ControllerInterface;
+use WebImage\Controllers\ErrorsController;
+use WebImage\Controllers\ExceptionsController;
+use WebImage\Router\Route;
+use WebImage\Router\RouteHelper;
+use WebImage\String\Url;
 
 class ApplicationStrategy extends BaseApplicationStrategy implements ContainerAwareInterface {
 	use ContainerAwareTrait;
@@ -17,15 +23,15 @@ class ApplicationStrategy extends BaseApplicationStrategy implements ContainerAw
 	/**
 	 * @inheritdoc
 	 */
-	public function getCallable(Route $route, array $vars)
+	public function getCallable(LeagueRoute $route, array $vars)
 	{
 		return function (ServerRequestInterface $request, ResponseInterface $response, callable $next) use ($route, $vars)
 		{
 			$request = $this->injectVarsAsAttributes($request, $vars);
 
-			list($request, $callable) = $this->preProcessCallable($request, $route);
+			$request = $this->preProcessCallable($request, $route);
 
-			$response = call_user_func($callable, $request, $response);
+			$response = call_user_func($route->getCallable(), $request, $response);
 
 			if ($response instanceof ResponseInterface) {
 				return $next($request, $response);
@@ -52,10 +58,11 @@ class ApplicationStrategy extends BaseApplicationStrategy implements ContainerAw
 	}
 
 	/**
+	 * Changes the route callable to call handleRequest() and passes the "action" as an attribute
 	 * @param ServerRequestInterface $request
 	 * @param Route $route
 	 *
-	 * @return array(ServerRequestInterface, Callable)
+	 * @return ServerRequestInterface
 	 */
 	private function preProcessCallable(ServerRequestInterface $request, Route $route)
 	{
@@ -71,7 +78,17 @@ class ApplicationStrategy extends BaseApplicationStrategy implements ContainerAw
 			}
 		}
 
-		return [$request, $callable];
+		$route->setCallable($callable);
+
+		return $request;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getNotFoundDecorator(NotFoundException $exception)
+	{
+		return $this->exceptionResponse($exception);
 	}
 
 	/**
@@ -79,32 +96,103 @@ class ApplicationStrategy extends BaseApplicationStrategy implements ContainerAw
 	 */
 	public function getExceptionDecorator(Exception $exception)
 	{
-		return function(ServerRequestInterface $req, ResponseInterface $res, \Closure $next) use ($exception) {
-			$res = $this->exceptionResponse($exception, $res);
-
-			$res->getBody()->write($exception->getMessage());
-
-			return $next($req, $res);
-		};
+		return $this->exceptionResponse($exception);
 	}
 
 	/**
 	 * Modify the response if the exception is an Http exception
 	 *
 	 * @param Exception $exception
-	 * @param ResponseInterface $res
-	 * @return ResponseInterface|static
+	 * @return \Closure
 	 */
-	private function exceptionResponse(Exception $exception, ResponseInterface $res)
+	private function exceptionResponse(Exception $exception)
 	{
-		if ($exception instanceof \League\Route\Http\Exception\HttpExceptionInterface) {
-			$res = $res->withStatus($exception->getStatusCode());
+		return function(ServerRequestInterface $request, ResponseInterface $response, \Closure $next) use ($exception) {
 
-			foreach($exception->getHeaders() as $name => $value) {
-				$res = $res->withHeader($name, $value);
+			$request = $request->withAttribute(ExceptionsController::ATTR_EXCEPTION, $exception);
+			$response = $this->populateExceptionResponse($response, $exception);
+			$route = $this->createExceptionRoute($request, $exception);
+
+			$request = $this->preProcessCallable($request, $route);
+			try {
+				$response = call_user_func($route->getCallable(), $request, $response);
+			} catch (Exception $e) {
+				/**
+				 * We have already tried to handle this request with
+				 * the default handler.  Now just return a response
+				 **/
+				$response->getBody()->write('An unhandled error occurred');
+
+				return $response;
+			}
+
+			if ($response instanceof ResponseInterface) {
+				return $next($request, $response);
+			}
+
+			return $response;
+		};
+	}
+
+	private function populateExceptionResponse(ResponseInterface $response, Exception $exception)
+	{
+		/**
+		 * Add error status code and headers to response
+		 */
+		if ($exception instanceof \League\Route\Http\Exception\HttpExceptionInterface) {
+			$response = $response->withStatus($exception->getStatusCode());
+
+			foreach ($exception->getHeaders() as $name => $value) {
+				$response = $response->withHeader($name, $value);
 			}
 		}
 
-		return $res;
+		return $response;
+	}
+
+	private function createExceptionRoute(ServerRequestInterface $request, Exception $exception)
+	{
+		$url = new Url($request->getUri());
+
+		$route = new Route();
+		$route->setScheme($url->getScheme());
+		$route->setHost($url->getHost());
+		$route->setMethods([$request->getMethod()]);
+		$route->setPath($url->getPath());
+		$route->setContainer($this->getContainer());
+
+		/** @var \WebImage\Application\ApplicationInterface $app */
+		$app = $this->getContainer()->get(\WebImage\Application\ApplicationInterface::class);
+		$config = $app->getConfig();
+
+		$handler = null;
+		foreach($this->getHandlerKeys($exception) as $key) {
+			$key = sprintf('router.handlers.%s', $key);
+			$handler = $config->get($key);
+			if (null !== $handler) $handler = RouteHelper::normalizeHandler($handler);
+		}
+
+		if (null === $handler) $handler = $this->getDefaultExceptionHandler();
+
+		$route->setCallable($handler);
+
+		return $route;
+	}
+
+	private function getHandlerKeys(Exception $exception)
+	{
+		$handlerKeys = ['exception']; // List of keys to look for in config to handle this exception
+
+		if ($exception instanceof \League\Route\Http\Exception\HttpExceptionInterface) {
+			// Use the status code as a possible handler key value
+			array_unshift($handlerKeys, $exception->getStatusCode());
+		}
+
+		return $handlerKeys;
+	}
+
+	private function getDefaultExceptionHandler()
+	{
+		return RouteHelper::normalizeHandler('WebImage\Controllers\ExceptionsController@handleException');
 	}
 }
