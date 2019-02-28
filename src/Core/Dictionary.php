@@ -18,13 +18,18 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 	{
 		foreach ($data as $key => $value) {
 			if (is_array($value)) {
-				$this->data[$key] = new static($value);
+				$this->data[$key] = $this->isAssocArray($value) ? new static($value) : $value;
 			} else {
 				$this->data[$key] = $value;
 			}
 
 			$this->count++;
 		}
+	}
+
+	private function isAssocArray(array $data)
+	{
+		return count($data) > 0 && array_keys($data) !== range(0, count($data) - 1);
 	}
 
 	/**
