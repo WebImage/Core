@@ -125,7 +125,7 @@ abstract class AbstractApplication implements ApplicationInterface
 	{
 		if (null === $this->projectPath) {
 			$r = new \ReflectionObject($this);
-			$dir = $rootDir = dirname($r->getFileName());
+			$dir = $rootDir = dirname(dirname(dirname($r->getFileName())));
 
 			$composerFiles = [];
 			while ($dir !== dirname($dir)) {
