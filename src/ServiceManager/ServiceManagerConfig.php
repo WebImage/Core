@@ -21,7 +21,7 @@ class ServiceManagerConfig extends Config implements ServiceManagerConfigInterfa
 
 	public function getInvokables()
 	{
-		return (isset($this[static::INVOKABLES])) ? $this->normalizeConfig([static::INVOKABLES]) : [];
+		return (isset($this[static::INVOKABLES])) ? $this->normalizeConfig($this[static::INVOKABLES]) : [];
 	}
 
 	public function getShared()

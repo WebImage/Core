@@ -2,6 +2,8 @@
 
 namespace WebImage\Controllers;
 
+use League\Route\Http\Exception\NotFoundException;
+
 class StaticFileController {
 	private $root, $reqAttrName;
 	public function __construct($pathRoot, $reqAttrName='path')
@@ -14,7 +16,7 @@ class StaticFileController {
 	{
 		$path = $this->systemPath($req);
 
-		if (!file_exists($path)) throw new \League\Route\Http\Exception\NotFoundException();
+		if (!file_exists($path)) throw new NotFoundException();
 
 		ob_start();
 		include($path);

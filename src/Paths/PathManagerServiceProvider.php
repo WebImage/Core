@@ -32,12 +32,15 @@ class PathManagerServiceProvider extends AbstractServiceProvider
 		/** @var ApplicationInterface $app */
 		$app = $this->getContainer()->get(ApplicationInterface::class);
 		$config = $app->getConfig();
-		$paths = isset($config['paths']) ? $config['paths'] : new Config();
+		$paths = isset($config['paths']) ? $config['paths'] : [];
 		$paths = $paths instanceof Config ? $paths->toArray() : $paths;
 
 		if (!in_array($app->getProjectPath(), $paths)) {
 			$paths[] = $app->getProjectPath();
 		}
+
+		// Check the core path as a last result
+		$paths[] = $app->getCorePath();
 
 		return $paths;
 	}

@@ -5,6 +5,7 @@ namespace WebImage\Router\Strategy;
 use Exception;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
+use League\Route\Http\Exception\MethodNotAllowedException;
 use League\Route\Http\Exception\NotFoundException;
 use League\Route\Route As LeagueRoute;
 use League\Route\Strategy\ApplicationStrategy as BaseApplicationStrategy;
@@ -39,6 +40,30 @@ class ApplicationStrategy extends BaseApplicationStrategy implements ContainerAw
 
 			return $response;
 		};
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getNotFoundDecorator(NotFoundException $exception)
+	{
+		return $this->exceptionResponse($exception);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getExceptionDecorator(Exception $exception)
+	{
+		return $this->exceptionResponse($exception);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getMethodNotAllowedDecorator(MethodNotAllowedException $exception)
+	{
+		return $this->exceptionResponse($exception);
 	}
 
 	/**
@@ -84,22 +109,6 @@ class ApplicationStrategy extends BaseApplicationStrategy implements ContainerAw
 	}
 
 	/**
-	 * @inheritdoc
-	 */
-	public function getNotFoundDecorator(NotFoundException $exception)
-	{
-		return $this->exceptionResponse($exception);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getExceptionDecorator(Exception $exception)
-	{
-		return $this->exceptionResponse($exception);
-	}
-
-	/**
 	 * Modify the response if the exception is an Http exception
 	 *
 	 * @param Exception $exception
@@ -134,6 +143,14 @@ class ApplicationStrategy extends BaseApplicationStrategy implements ContainerAw
 		};
 	}
 
+	/**
+	 * Apply the error's status code and any related headers to the response object
+	 *
+	 * @param ResponseInterface $response
+	 * @param Exception $exception
+	 *
+	 * @return ResponseInterface|static
+	 */
 	private function populateExceptionResponse(ResponseInterface $response, Exception $exception)
 	{
 		/**
@@ -193,6 +210,7 @@ class ApplicationStrategy extends BaseApplicationStrategy implements ContainerAw
 
 	private function getDefaultExceptionHandler()
 	{
-		return RouteHelper::normalizeHandler('WebImage\Controllers\ExceptionsController@handleException');
+		// ExceptionsController will be pulled from the ServiceManager
+		return RouteHelper::normalizeHandler('ExceptionsController@exception');
 	}
 }

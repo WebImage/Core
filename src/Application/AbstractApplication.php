@@ -124,8 +124,7 @@ abstract class AbstractApplication implements ApplicationInterface
 	public function getProjectPath()
 	{
 		if (null === $this->projectPath) {
-			$r = new \ReflectionObject($this);
-			$dir = $rootDir = dirname(dirname(dirname($r->getFileName())));
+			$dir = $rootDir = $this->getCorePath();
 
 			$composerFiles = [];
 			while ($dir !== dirname($dir)) {
@@ -139,6 +138,13 @@ abstract class AbstractApplication implements ApplicationInterface
 		return $this->projectPath;
 	}
 
+	public function getCorePath()
+	{
+//		$r = new \ReflectionObject($this);
+//		return dirname(dirname(dirname($r->getFileName())));
+
+		return dirname(dirname(dirname(__FILE__)));
+	}
 
 	/**
 	 * Merge the provided config with defaults (overwrites defaults)
@@ -169,6 +175,11 @@ abstract class AbstractApplication implements ApplicationInterface
 		];
 	}
 
+	/**
+	 * Get default service manager config
+	 *
+	 * @return array
+	 */
 	protected static function getDefaultServiceManagerConfig()
 	{
 		return [

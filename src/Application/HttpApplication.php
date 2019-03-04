@@ -5,6 +5,7 @@ namespace WebImage\Application;
 use League\Route\Middleware\StackAwareInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use WebImage\Controllers\ExceptionsController;
 use WebImage\Core\ArrayHelper;
 use WebImage\Http\Response;
 use WebImage\Http\ServerRequest;
@@ -76,9 +77,7 @@ class HttpApplication extends AbstractApplication {
 	}
 
 	/**
-	 * Create a fully executable application
-	 *
-	 * @return HttpApplication
+	 * @inheritdoc
 	 */
 	protected static function getDefaultServiceManagerConfig()
 	{
@@ -90,6 +89,9 @@ class HttpApplication extends AbstractApplication {
 			],
 			ServiceManagerConfig::PROVIDERS => [
 				ViewFactoryServiceProvider::class
+			],
+			ServiceManagerConfig::INVOKABLES => [
+				'ExceptionsController' => ExceptionsController::class
 			]
 //			ServiceManagerConfig::INFLECTORS => [
 //				'LoggerAwareInterface' => [

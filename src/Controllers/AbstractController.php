@@ -27,7 +27,11 @@ class AbstractController implements ControllerInterface, ContainerAwareInterface
 	/**
 	 * @var Dictionary
 	 */
-	private $queryParams;
+	private $queryVars;
+	/**
+	 * @var Dictionary
+	 */
+	private $postVars;
 
 	/**
 	 * Take a routed requested and send it to the appropriate action
@@ -87,12 +91,13 @@ class AbstractController implements ControllerInterface, ContainerAwareInterface
 
 	protected function queryParams()
 	{
-		if (null === $this->queryParams) {
-			$this->queryParams = new Dictionary($this->getRequest()->getQueryParams());
+		if (null === $this->queryVars) {
+			$this->queryVars = new Dictionary($this->getRequest()->getQueryParams());
 		}
 
-		return $this->queryParams;
+		return $this->queryVars;
 	}
+
 	/**
 	 * Returns a view object
 	 * @param array $vars
@@ -129,6 +134,18 @@ class AbstractController implements ControllerInterface, ContainerAwareInterface
 	 */
 	protected function getDefaultViewName()
 	{
+		$name = $this->getControllerNameForView();
+		$action = $this->getRequest()->getAttribute(ControllerInterface::DISPATCH_ACTION_ATTRIBUTE);
+
+		return sprintf('%s/%s/%s', 'controllers', $name, $action);
+	}
+
+	/**
+	 * Generate a view name for the current controller
+	 * @return string
+	 */
+	protected function getControllerNameForView()
+	{
 		$class = get_class($this);
 		$parts = explode('\\', $class);
 
@@ -139,9 +156,7 @@ class AbstractController implements ControllerInterface, ContainerAwareInterface
 			$name = substr($name, 0, -10);
 		}
 
-		$action = $this->getRequest()->getAttribute(ControllerInterface::DISPATCH_ACTION_ATTRIBUTE);
-
-		return sprintf('%s/%s/%s', 'controllers', $name, $action);
+		return $name;
 	}
 
 	/**

@@ -45,4 +45,10 @@ interface ApplicationInterface extends ServiceManagerAwareInterface {
 	 * @return mixed
 	 */
 	public function getProjectPath();
+
+	/**
+	 * Get the root path for the core (this) library
+	 * @return mixed
+	 */
+	public function getCorePath();
 }
