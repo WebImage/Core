@@ -45,6 +45,8 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 					$this->data[] = $value;
 				} elseif ($value instanceof static && $this->data[$key] instanceof static) {
 					$this->data[$key]->merge($value);
+				} else if (is_array($value) && is_array($this->data[$key])) {
+					$this->data[$key] = ArrayHelper::merge($this->data[$key], $value);
 				} else {
 					if ($value instanceof static) {
 						$this->data[$key] = new static($value->toArray());
