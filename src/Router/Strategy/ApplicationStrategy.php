@@ -11,6 +11,7 @@ use League\Route\Route As LeagueRoute;
 use League\Route\Strategy\ApplicationStrategy as BaseApplicationStrategy;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use WebImage\Application\ApplicationInterface;
 use WebImage\Controllers\ControllerInterface;
 use WebImage\Controllers\ErrorsController;
 use WebImage\Controllers\ExceptionsController;
@@ -121,6 +122,9 @@ class ApplicationStrategy extends BaseApplicationStrategy implements ContainerAw
 			$request = $request->withAttribute(ExceptionsController::ATTR_EXCEPTION, $exception);
 			$response = $this->populateExceptionResponse($response, $exception);
 			$route = $this->createExceptionRoute($request, $exception);
+			/** @var ApplicationInterface $app */
+			$app = $this->getContainer()->get(ApplicationInterface::class);
+			$isDebugMode = $app->getConfig()->get('debug', false);
 
 			$request = $this->preProcessCallable($request, $route);
 			try {
@@ -130,7 +134,9 @@ class ApplicationStrategy extends BaseApplicationStrategy implements ContainerAw
 				 * We have already tried to handle this request with
 				 * the default handler.  Now just return a response
 				 **/
-				$response->getBody()->write('An unhandled error occurred');
+				$msg = 'An unhandled error occurred.';
+				if ($isDebugMode) $msg .= '  ' . $e->getMessage();
+				$response->getBody()->write($msg);
 
 				return $response;
 			}
