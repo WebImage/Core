@@ -58,8 +58,10 @@ class ServiceManagerConfig extends Config implements ServiceManagerConfigInterfa
 	 *
 	 * @return Config
 	 */
-	protected function normalizeConfig(Config $config)
+	protected function normalizeConfig(iterable $config)
 	{
+		if (is_array($config)) $config = new Config($config);
+
 		foreach($config as $alias => $concrete) {
 			$concrete = $this->normalizeConcrete($concrete);
 			if (is_numeric($alias)) {
