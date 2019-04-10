@@ -38,22 +38,12 @@ class PluginLoader
 		$this->registered = new Dictionary();
 		$this->loaded = new Dictionary();
 	}
+
 	public function register(PluginInterface $plugin)
 	{
-//		$r = new \ReflectionObject($plugin);
-//		$dir = $rootDir = dirname($r->getFileName());
-//
-//		while (!file_exists($dir.'/plugin.json')) {
-//			if ($dir === dirname($dir)) {
-//				throw new \RuntimeException(sprintf('%s is missing the required plugin.json file', $r->getName()));
-//			}
-//			$dir = dirname($dir);
-//		}
-//
-//		$manifestFile = $dir . '/plugin.json';
-//
-//		$manifest = new PluginManifest($manifestFile);
-
+		if (null === $plugin->getManifest()) {
+			echo '<pre>';print_r($plugin);echo '<hr />' . __FILE__ .':'.__LINE__;exit;
+		}
 		$id = $plugin->getManifest()->getId();
 
 		if ($this->registered->has($id)) {
@@ -72,9 +62,9 @@ class PluginLoader
 		foreach($this->registered as $pluginId => $plugin) {
 			if ($this->loaded->has($pluginId)) continue;
 
-			foreach($plugin->getManifest()->getRequiredPlugins() as $requiredPluginId) {
-				if (!$this->registered->has($requiredPluginId)) {
-					throw new PluginNotFoundException(sprintf('Plugin %s is missing required plugin %s', $pluginId, $requiredPluginId));
+			foreach($plugin->getManifest()->getRequiredPlugins() as $requiredPlugin) {
+				if (!$this->registered->has($requiredPlugin->getId())) {
+					throw new PluginNotFoundException(sprintf('Plugin %s is missing required plugin %s', $pluginId, $requiredPlugin->getId()));
 				}
 			}
 

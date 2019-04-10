@@ -9,10 +9,6 @@ use WebImage\ServiceManager\ServiceManagerConfig;
 abstract class AbstractPlugin implements PluginInterface
 {
 	/**
-	 * @var bool
-	 */
-	private $initialized = false;
-	/**
 	 * @var string
 	 */
 	private $pluginPath;
@@ -20,43 +16,6 @@ abstract class AbstractPlugin implements PluginInterface
 	 * @var PluginManifest
 	 */
 	private $manifest;
-
-	/**
-	 * General plugin constructor.
-	 */
-	public function __construct()
-	{
-		if ($this->initialized) return;
-
-		$this->initManifest();
-
-		$this->initialized = true;
-	}
-
-	protected function initManifest()
-	{
-		$path = $this->getPluginPath();
-		$manifestPath = $path . '/plugin.json';
-		$this->manifest = new PluginManifest($manifestPath);
-
-//		if (!file_exists($manifestPath)) {
-//			throw new \RuntimeException('Missing required plugin.json');
-//		}
-//
-//		$manifestStr = file_get_contents($manifestPath);
-//		$manifest = empty($manifestStr) ? [] : json_decode($manifestStr, true);
-//
-//		foreach(['id', 'name', 'version'] as $requiredVar) {
-//			if (!isset($manifest[$requiredVar])) {
-//				throw new \RuntimeException(sprintf('%s is a required plugin.json field in %s', $requiredVar, $manifestPath));
-//			}
-//		}
-//
-//		$this->id = $manifest['id'];
-//		$this->name = $manifest['name'];
-//		$this->description = isset($manifest['description']) ? $manifest['description'] : '';
-//		$this->version = Version::createFromString($manifest['version']);
-	}
 
 	/**
 	 * Get the root plugin path
@@ -121,6 +80,15 @@ abstract class AbstractPlugin implements PluginInterface
 
 	public function getManifest()
 	{
+		if (null === $this->manifest) $this->initManifest();
+
 		return $this->manifest;
+	}
+
+	protected function initManifest()
+	{
+		$path = $this->getPluginPath();
+		$manifestPath = $path . '/plugin.json';
+		$this->manifest = new PluginManifest($manifestPath);
 	}
 }

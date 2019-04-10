@@ -8,26 +8,26 @@ class PluginAuthor {
 	/** @var string The author's email address */
 	private $email;
 	/** @var string The author's email */
-	private $company;
+	private $website;
 
 	/**
 	 * PluginAuthor constructor.
 	 *
 	 * @param string $name
 	 * @param string $email
-	 * @param string $company
+	 * @param string $website
 	 */
-	public function __construct($name, $email, $company)
+	public function __construct($name, $email, $website)
 	{
 		$this->name = $name;
 		$this->email = $email;
-		$this->company = $company;
+		$this->website = $website;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getName()
+	public function getName(): string
 	{
 		return $this->name;
 	}
@@ -35,7 +35,7 @@ class PluginAuthor {
 	/**
 	 * @return string
 	 */
-	public function getEmail()
+	public function getEmail(): string
 	{
 		return $this->email;
 	}
@@ -43,8 +43,8 @@ class PluginAuthor {
 	/**
 	 * @return string
 	 */
-	public function getCompany()
+	public function getWebsite(): string
 	{
-		return $this->company;
+		return $this->website;
 	}
 }
