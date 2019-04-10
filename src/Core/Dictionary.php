@@ -18,13 +18,30 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 	{
 		foreach ($data as $key => $value) {
 			if (is_array($value)) {
-				$this->data[$key] = $this->isAssocArray($value) ? new static($value) : $value;
+				$this->data[$key] = $this->processArray($value);
 			} else {
 				$this->data[$key] = $value;
 			}
 
 			$this->count++;
 		}
+	}
+
+	/**
+	 * Traverse an array and process associative arrays as instances of the static class type
+	 * @param array $values
+	 *
+	 * @return array|static
+	 */
+	private function processArray(array $values)
+	{
+		if ($this->isAssocArray($values)) return new static($values);
+
+		foreach($values as $key => $val) {
+			if (is_array($val)) $values[$key] = $this->processArray($val);
+		}
+
+		return $values;
 	}
 
 	private function isAssocArray(array $data)
