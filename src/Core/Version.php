@@ -20,7 +20,7 @@ class Version {
 	 * @param int $revision
 	 * @param string|null $label
 	 */
-	public function __construct($major, $minor, $revision, $label=null)
+	public function __construct(int $major, int $minor=0, int $revision=0, string $label=null)
 	{
 		$this->major = $major;
 		$this->minor = $minor;
@@ -31,7 +31,7 @@ class Version {
 	/**
 	 * @return int
 	 */
-	public function getMajor()
+	public function getMajor(): int
 	{
 		return $this->major;
 	}
@@ -39,7 +39,7 @@ class Version {
 	/**
 	 * @return int
 	 */
-	public function getMinor()
+	public function getMinor(): int
 	{
 		return $this->minor;
 	}
@@ -47,7 +47,7 @@ class Version {
 	/**
 	 * @return int
 	 */
-	public function getRevision()
+	public function getRevision(): int
 	{
 		return $this->revision;
 	}
@@ -55,7 +55,7 @@ class Version {
 	/**
 	 * @return string
 	 */
-	public function getLabel()
+	public function getLabel(): string
 	{
 		return $this->label;
 	}
@@ -84,6 +84,6 @@ class Version {
 		list($version_str, $label) = array_pad(explode(' ', $str, 2), 2, '');
 		list($major, $minor, $revision) = array_pad(explode('.', $version_str, 3), 3, 0);
 
-		return new static($major, $minor, $revision, $label);
+		return new static(intval($major), intval($minor), intval($revision), $label);
 	}
 }
