@@ -16,7 +16,7 @@ class PhpEngine implements EngineInterface {
 		 * Adds $view to template
 		 */
 		$render = (function($__path, $__data) use ($view) {
-			$varList = implode(', ', array_keys($__data));
+			$vars = '[' . implode(', ', array_keys($__data)) . ']';
 			ob_start();
 			extract($__data, EXTR_SKIP);
 			include($__path);
