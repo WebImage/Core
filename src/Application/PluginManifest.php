@@ -119,7 +119,7 @@ class PluginManifest
 	private function requiredKeys(array $var, array $keys, Dictionary $manifest, string $locationDescription)
 	{
 		foreach($keys as $requiredVar) {
-			if (!isset($var[$requiredVar])) $this->missingFieldException($requiredVar, $locationDescription, $manifest);
+			if (!isset($var[$requiredVar])) $this->missingFieldException($requiredVar, $manifest, $locationDescription);
 		}
 	}
 

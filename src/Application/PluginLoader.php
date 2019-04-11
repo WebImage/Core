@@ -25,9 +25,9 @@ class PluginLoader
 	private $registered;
 	/**
 	 * The plugins that have been loaded
-	 * @var
+	 * @var string[] Plugin IDs that have already been loaded
 	 */
-	private $loaded;
+	private $loaded = [];
 
 	/**
 	 * PluginLoader constructor.
@@ -36,7 +36,6 @@ class PluginLoader
 	{
 		$this->basePluginDir = rtrim($basePluginDir, '/');
 		$this->registered = new Dictionary();
-		$this->loaded = new Dictionary();
 	}
 
 	public function register(PluginInterface $plugin)
@@ -56,20 +55,47 @@ class PluginLoader
 	public function load(ApplicationInterface $app)
 	{
 		/**
-		 * @var string $pluginId
-		 * @var PluginInterface $plugin
+		 * Continue running until all registered plugins have been loaded
+		 * Plugins themselves can call $app->registerPlugin(...) to load more plugins
 		 */
-		foreach($this->registered as $pluginId => $plugin) {
-			if ($this->loaded->has($pluginId)) continue;
-
-			foreach($plugin->getManifest()->getRequiredPlugins() as $requiredPlugin) {
-				if (!$this->registered->has($requiredPlugin->getId())) {
-					throw new PluginNotFoundException(sprintf('Plugin %s is missing required plugin %s', $pluginId, $requiredPlugin->getId()));
-				}
+		while (count($plugins = $this->getUnloadedPlugins()) > 0) {
+			/**
+			 * @var string $pluginId
+			 * @var PluginInterface $plugin
+			 */
+			foreach ($plugins as $pluginId => $plugin) {
+				$this->verifyRequirements($plugin);
+				$plugin->load($app);
+				$this->loaded[] = $pluginId;
+	//			$app->getServiceManager()->share($pluginId, $plugin);
 			}
+		}
+	}
 
-			$plugin->load($app);
-//			$app->getServiceManager()->share($pluginId, $plugin);
+	/**
+	 * Returns all plugins that have not been loaded
+	 *
+	 * @return array [pluginId] => plugin
+	 */
+	private function getUnloadedPlugins()
+	{
+		$plugins = [];
+
+		foreach ($this->registered as $pluginId => $plugin) {
+			if (in_array($pluginId, $this->loaded)) continue;
+
+			$plugins[$pluginId] = $plugin;
+		}
+
+		return $plugins;
+	}
+
+	private function verifyRequirements(PluginInterface $plugin)
+	{
+		foreach ($plugin->getManifest()->getRequiredPlugins() as $requiredPlugin) {
+			if (!$this->registered->has($requiredPlugin->getId())) {
+				throw new PluginNotFoundException(sprintf('Plugin %s is missing required plugin %s', $plugin->getManifest()->getId(), $requiredPlugin->getId()));
+			}
 		}
 	}
 }

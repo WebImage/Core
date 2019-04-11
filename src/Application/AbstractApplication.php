@@ -88,9 +88,7 @@ abstract class AbstractApplication implements ApplicationInterface
 	 * @inheritdoc
 	 */
 	public function registerPlugin(PluginInterface $plugin)
-//	public function registerPlugin($pluginDir)
 	{
-//		$this->plugins->register($pluginDir);
 		$this->plugins->register($plugin);
 	}
 
