@@ -52,9 +52,7 @@ class Manager implements ManagerInterface
 		$type = $event->getType();
 		$listeners = isset($this->listeners[$type]) ? $this->listeners[$type] : [];
 
-		krsort($listeners);
-
-		return call_user_func_array('array_merge', $listeners);
+		return count($listeners) == 0 ? [] : call_user_func_array('array_merge', $listeners);
 	}
 
 	/**
