@@ -12,6 +12,8 @@ use RuntimeException;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
 use WebImage\Application\ApplicationInterface;
+use WebImage\Core\Dictionary;
+use WebImage\Event\ManagerInterface As EventManager;
 
 class Factory implements ContainerAwareInterface {
 	use ContainerAwareTrait;
@@ -28,6 +30,10 @@ class Factory implements ContainerAwareInterface {
 	 * @var string[]
 	 */
 	private $extensions = [];
+	/**
+	 * @var Dictionary ['viewName' => ViewBuilderInterface]
+	 */
+	private $builders;
 
 	/**
 	 * Factory constructor.
@@ -39,6 +45,7 @@ class Factory implements ContainerAwareInterface {
 	{
 		$this->finder = $finder;
 		$this->engines = $engines;
+		$this->builders = new Dictionary();
 	}
 
 	/**
@@ -63,9 +70,11 @@ class Factory implements ContainerAwareInterface {
 			$view
 		);
 
-		/** @var \WebImage\Event\ManagerInterface $events */
-//		$events = $this->getContainer()->get(\WebImage\Event\ManagerInterface::class);
-//		$events->trigger('view.created', null, $view);
+		$this->buildView($view);
+
+		/** @var EventManager $events */
+		$events = $this->getContainer()->get(EventManager::class);
+		$events->trigger('view.created', null, $view);
 
 		return $view;
 	}
@@ -81,7 +90,7 @@ class Factory implements ContainerAwareInterface {
 		return $path;
 	}
 
-	private function getEngineFromPath($path)
+	private function getEngineFromPath(string $path)
 	{
 		if (! $extension = $this->getExtension($path)) {
 			throw new InvalidArgumentException('Unrecognized extension in file: ' . $path);
@@ -92,7 +101,7 @@ class Factory implements ContainerAwareInterface {
 		return $this->engines->resolve($engine);
 	}
 
-	private function getExtension($path)
+	private function getExtension(string $path)
 	{
 		$extensions = array_keys($this->extensions);
 
@@ -115,7 +124,7 @@ class Factory implements ContainerAwareInterface {
 		return $best_match;
 	}
 
-	public function addExtension($extension, $engine, $resolver=null)
+	public function addExtension(string $extension, string $engine, $resolver=null)
 	{
 		$this->finder->addExtension($extension);
 
@@ -126,6 +135,21 @@ class Factory implements ContainerAwareInterface {
 		unset($this->extensions[$extension]);
 
 		$this->extensions[$extension] = $engine;
+	}
+
+	private function buildView(View $view)
+	{
+		if (!$this->builders->has($view->getViewName())) return;
+
+		$builderClass = $this->getContainer()->get($this->builders->get($view->getViewName()));
+		/** @var ViewBuilderInterface $builder */
+		$builder = $this->getContainer()->get($builderClass);
+		$builder->buildView($view);
+	}
+
+	public function addBuilder(string $view, /*string | ViewBuilderInterface */$viewBuilder)
+	{
+		$this->builders->set($view, $viewBuilder);
 	}
 
 	/**

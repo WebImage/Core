@@ -34,11 +34,14 @@ class FileViewFinder implements ViewFinderInterface {
 	 */
 	public function find($view)
 	{
-		if (isset($this->views[$view])) {
-			return $this->views[$view];
+		$views = is_array($view) ? $view : [$view];
+		$primaryView = $views[0];
+
+		if (isset($this->views[$primaryView])) {
+			return $this->views[$primaryView];
 		}
 
-		$files = $this->getPossibleFilePaths($view);
+		$files = $this->getPossibleFilePaths($views);
 
 		return $this->views[$view] = $this->firstExistingFile($files, $view);
 	}
@@ -80,31 +83,40 @@ class FileViewFinder implements ViewFinderInterface {
 		array_unshift($this->extensions, $extension);
 	}
 
+	/**
+	 * @param string|string[]|array $view
+	 * @return array
+	 */
 	public function getScoredPossiblePaths($view)
 	{
-		$views = array();
-		$exclude_profiles = substr($view, -1) == self::$EXCLUDE_PROFILES_CHAR;
-		if ($exclude_profiles) {
-			$view = substr($view, 0, -1);
-		}
+		$views = is_array($view) ? $view : [$view];
 
-		foreach($this->paths->all() as $path) {
-			$base = $path . '/' . $view;
+		$viewPaths = array();
 
-			if (!$exclude_profiles) {
-				foreach ($this->profiles as $profile) {
-					foreach ($this->extensions as $extension) {
-						$views[] = sprintf('%s~%s.%s', $base, $profile, $extension);
+		foreach($views as $view) {
+			$excludeProfiles = substr($view, -1) == self::$EXCLUDE_PROFILES_CHAR;
+			if ($excludeProfiles) {
+				$view = substr($view, 0, -1);
+			}
+
+			foreach ($this->paths->all() as $path) {
+				$base = $path . '/' . $view;
+
+				if (!$excludeProfiles) {
+					foreach ($this->profiles as $profile) {
+						foreach ($this->extensions as $extension) {
+							$viewPaths[] = sprintf('%s~%s.%s', $base, $profile, $extension);
+						}
 					}
 				}
-			}
 
-			foreach($this->extensions as $extension) {
-				$views[] = sprintf('%s.%s', $base, $extension);
+				foreach ($this->extensions as $extension) {
+					$viewPaths[] = sprintf('%s.%s', $base, $extension);
+				}
 			}
 		}
 
-		return $views;
+		return $viewPaths;
 	}
 
 	public function getPossibleFilePaths($view)

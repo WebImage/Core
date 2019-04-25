@@ -142,10 +142,15 @@ class FactoryServiceProvider extends AbstractServiceProvider {
 
 			$finder = new FileViewFinder($pathManager);
 
-			// Add supported profiles
+			$extensions = isset($config[self::CONFIG_EXTENSIONS]) ? $config[self::CONFIG_EXTENSIONS] : new Config();
+			foreach($extensions as $extension => $engineKey) {
+				$finder->addExtension($extension);
+			}
+
+			// Add supported variations
 			$variations = isset($config[self::CONFIG_VARIATIONS]) ? $config[self::CONFIG_VARIATIONS] : new Config();
-			foreach($variations as $profile) {
-				$finder->addVariation($profile);
+			foreach($variations as $variation) {
+				$finder->addVariation($variation);
 			}
 
 			return $finder;

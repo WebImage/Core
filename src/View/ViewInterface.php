@@ -31,6 +31,7 @@ interface ViewInterface {
 	/**
 	 * Renders a view using vars
 	 *
+	 * @param array $data
 	 * @return string
 	 */
 	public function render(array $data);
