@@ -103,4 +103,11 @@ class HttpApplication extends AbstractApplication {
 //			]
 		]);
 	}
+
+	protected static function getDefaultConfig()
+	{
+		return array_merge_recursive(parent::getDefaultConfig(), [
+			'app' => ['controllers' => ['namespace' => 'App\\Controllers']],
+		]);
+	}
 }
