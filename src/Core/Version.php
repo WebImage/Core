@@ -61,6 +61,22 @@ class Version {
 	}
 
 	/**
+	 * Determine if this version is greater (1) than, less than (-1), or equal (0) to another version
+	 * @param Version $version
+	 * @return int
+	 */
+	public function compare(Version $version)
+	{
+		if ($this->getMajor() > $version->getMajor()) return 1;
+		else if ($this->getMajor() < $version->getMajor()) return -1;
+		else if ($this->getMinor() > $version->getMinor()) return 1;
+		else if ($this->getMinor() < $version->getMinor()) return -1;
+		else if ($this->getRevision() > $version->getRevision()) return 1;
+		else if ($this->getRevision() < $version->getRevision()) return -1;
+
+		return 0;
+	}
+	/**
 	 * Convert class to user friendly string
 	 *
 	 * @return string
