@@ -90,10 +90,32 @@ class PluginLoader
 		return $plugins;
 	}
 
+	/**
+	 * Check that a plugin to be loaded has all of its requirements met
+	 * @param PluginInterface $plugin
+	 */
 	private function verifyRequirements(PluginInterface $plugin)
 	{
 		foreach ($plugin->getManifest()->getRequiredPlugins() as $requiredPlugin) {
-			if (!$this->registered->has($requiredPlugin->getId())) {
+			/**
+			 * Check that a required plugin is registered
+			 */
+			if ($this->registered->has($requiredPlugin->getId())) {
+				/** @var PluginInterface $registeredPlugin */
+				$registeredPlugin = $this->registered->get($requiredPlugin->getId());
+				/**
+				 * Verify that the required version is installed
+				 */
+				if ($requiredPlugin->getVersion()->compare($registeredPlugin->getManifest()->getVersion()) > 0) {
+					throw new PluginRegisteredException(sprintf(
+						'Plugin %s requires plugin %s version %s or higher (%s installed)',
+						$plugin->getManifest()->getId(),
+						$requiredPlugin->getId(),
+						$requiredPlugin->getVersion(),
+						$registeredPlugin->getManifest()->getVersion()
+					));
+				}
+			} else {
 				throw new PluginNotFoundException(sprintf('Plugin %s is missing required plugin %s', $plugin->getManifest()->getId(), $requiredPlugin->getId()));
 			}
 		}

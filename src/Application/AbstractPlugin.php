@@ -74,9 +74,17 @@ abstract class AbstractPlugin implements PluginInterface
 	public function uninstall(ApplicationInterface $app) {}
 
 	/**
-	 * @inheritdoc
+	 * @return Config|null
 	 */
-	public function getConfig() {}
+	protected function getConfig() {
+		$configPath = $this->getManifest()->getRoot() . '/config/config.php';
+		if (!file_exists($configPath)) return;
+
+		$config = require($configPath);
+		if (!is_array($config)) throw new \RuntimeException($configPath . ' should return an array');
+
+		return new Config($config);
+	}
 
 	public function getManifest()
 	{
