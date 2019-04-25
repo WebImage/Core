@@ -11,10 +11,24 @@ class RouteHelper {
 	 */
 	public static function normalizeHandler($handler)
 	{
+		$leagueActionSeparator = '::';
 		if (is_string($handler)) {
-			$handler = str_replace('@', '::', $handler);
+			$handler = str_replace('@', $leagueActionSeparator, $handler);
+//			$handler = self::expandShorthand($handler, $leagueActionSeparator);
 		}
 
 		return $handler;
 	}
+
+//	private static function expandShorthand(string $handler, string $leagueActionSeparator)
+//	{
+//		list($controller, $action) = array_pad(explode($leagueActionSeparator, $handler, 2), 2, null);
+//		if (null === $action) return $controller;
+//
+//		if (substr($controller, -10) != 'Controller' && false === strpos($controller, '/')) {
+//			$controller = 'App\\Controllers\\' . $controller . 'Controller';
+//		}
+//
+//		return $controller . $leagueActionSeparator . $action;
+//	}
 }

@@ -3,6 +3,7 @@
 namespace WebImage\Router\Strategy;
 
 use Exception;
+use Illuminate\Console\Application;
 use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
 use League\Route\Http\Exception\MethodNotAllowedException;
@@ -94,6 +95,9 @@ class ApplicationStrategy extends BaseApplicationStrategy implements ContainerAw
 	{
 		$callable = $route->getCallable();
 
+		$app = $this->getApplication($route);
+		$config = $app->getConfig();
+
 		if (is_array($callable) && isset($callable[0]) && is_object($callable[0])) {
 			if ($callable[0] instanceof ControllerInterface) {
 				$request = $request->withAttribute(ControllerInterface::DISPATCH_ACTION_ATTRIBUTE, $callable[1]);
@@ -109,6 +113,15 @@ class ApplicationStrategy extends BaseApplicationStrategy implements ContainerAw
 		return $request;
 	}
 
+	/**
+	 * @param Route $route
+	 *
+	 * @return ApplicationInterface
+	 */
+	private function getApplication(Route $route)
+	{
+		return $route->getContainer()->get(ApplicationInterface::class);
+	}
 	/**
 	 * Modify the response if the exception is an Http exception
 	 *
