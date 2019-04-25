@@ -169,6 +169,7 @@ abstract class AbstractApplication implements ApplicationInterface
 	protected static function getDefaultConfig()
 	{
 		return [
+			'app' => ['namespace' => 'App'],
 			self::CONFIG_SERVICE_MANAGER => static::getDefaultServiceManagerConfig()
 		];
 	}
