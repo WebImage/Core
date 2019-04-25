@@ -1,137 +1,142 @@
 <?php
 
-/**
- * Heavily borrowed from Doctrine's Type::getType()
- */
 namespace WebImage\TypeResolver;
 
-abstract class Resolver {
-	const BOOLEAN = 'boolean';
-	const DATE = 'date';
-	const DATETIME = 'datetime';
-	const DECIMAL = 'decimal';
-	const INTEGER = 'integer';
-	const STRING = 'string';
-	const TEXT = 'text';
+use WebImage\Config\Configurator;
 
-	private static $_resolvedTypes = [];
-
-	private static $_typeMap = [
-		self::BOOLEAN => BooleanType::class,
-		self::DATE => DateType::class,
-		self::DATETIME => DateTimeType::class,
-		self::DECIMAL => DecimalType::class,
-		self::INTEGER => IntegerType::class,
-		self::STRING => StringType::class,
-		self::TEXT => TextType::class
-	];
+class TypeResolver
+{
+	/** @var array key => className */
+	private $typeMap = [];
+	private $typeConfigurator = [];
 
 	/**
-	 * Force us of getType() factory method.
-	 */
-	final private function __construct() {}
-
-	/**
-	 * Factory method to instantiate a specific type by name
+	 * Gets an instantiated element by name (if an ElementInterface is passed directly it will be returned as is)
 	 *
-	 * @param string $name
+	 * @param string String reference to a class, as defined by $typeMap
+	 * @param array|Configurator|null An associative array or Configurator of options
 	 *
-	 * @return DataType
+	 * @return object
+	 * @throws \Exception
 	 */
-	public static function getType($name)
+	public function resolve(string $key, $configurator = null)
 	{
-		if (!isset(self::$_resolvedTypes[$name])) {
-			if (!self::hasType($name)) {
-				throw new \InvalidArgumentException(sprintf('Type not found: %s.', $name));
-			}
-			self::$_resolvedTypes[$name] = new self::$_typeMap[$name];
+		if (!$this->has($key)) {
+			throw new \Exception('Invalid element: ' . $key);
 		}
 
-		return self::$_resolvedTypes[$name];
-	}
+		$class = $this->getClass($key);
 
-	/**
-	 * The internal name of the type, equal to the key in $_typeMap
-	 *
-	 * @return string
-	 */
-	abstract public function getTypeName();
-
-	/**
-	 * Get the structure of the underlying data type..
-	 *
-	 * Generally this will be the same as getTypeName()
-	 * unless new functionality is added to a base type,
-	 *
-	 * @return string
-	 */
-	public function getDataTypeName()
-	{
-		return $this->getTypeName();
-	}
-
-	/**
-	 * Get the user friendly name associated with the type
-	 *
-	 * @return string
-	 */
-	abstract public function getName();
-
-	/**
-	 * Add an additional supported type.
-	 *
-	 * @param $name
-	 * @param $className
-	 *
-	 * @return null
-	 */
-	public static function addType($name, $className)
-	{
-		if (self::hasType($name)) {
-			throw new \RuntimeException(sprintf('Type already exists: %s.', $name));
+		// If a configurator was registered, use it
+		if (null === $configurator && isset($this->typeConfigurator[$key])) {
+			$configurator = $this->typeConfigurator[$key];
 		}
 
-		self::$_typeMap[$name] = $className;
+		if (null === $configurator || is_array($configurator)) {
+			$configurator = new Configurator(null === $configurator ? [] : $configurator);
+		}
+
+		return $class::createFromConfigurator($configurator);
 	}
 
 	/**
-	 * Check if a type exists.
+	 * Register a class name and key
 	 *
-	 * @param string $name
+	 * @param string $class A resolvable class that will be associated with key
+	 * @param array|Configurator|null An associative array or Configurator of options
+	 * @param string|null $key A key that the class will be associated with (key will be generated if not supplied)
 	 *
+	 * @return void
+	 */
+	public function register($class, $configurator = null, $key = null)
+	{
+		if (null === $key || empty($key)) {
+			$parts = explode('\\', $class);
+			$key = $this->normalizeKey(array_pop($parts));
+		}
+
+		if ($this->has($key)) {
+			throw new \RuntimeException(sprintf('A class is already registered for this key: %s', $key));
+		}
+
+		if (null !== $configurator) $this->typeConfigurator[$key] = $configurator;
+
+		$this->typeMap[$key] = $class;
+	}
+
+	/**
+	 * Unregiser a class name or key
+	 *
+	 * @param string $key The class name or key to unregister (class name is converted to key)
+	 *
+	 * @return void
+	 */
+	public function unregister($key)
+	{
+		$parts = explode('\\', $key);
+		$key = $this->normalizeKey(array_pop($parts));
+
+		if (!isset($this->typeMap[$key])) {
+			throw new \RuntimeException(sprintf('%s is not a registered element', $key));
+		}
+		// Remove any configurators that were setup
+		if (issset($this->typeConfigurator[$key])) unset($this->typeConfigurator[$key]);
+
+		unset($this->typeMap[$key]);
+	}
+
+	/**
+	 * Gets the class name for a given key
+	 * @param string $key Can be a class name used to register a class, or its associated key
+	 * @return ElementInterface
+	 * @throws \InvalidArgumentException When a class is not defined for a key
+	 */
+	public function getClass($key)
+	{
+		$key = $this->normalizeKey($key);
+
+		if (!$this->has($key)) {
+			throw new \InvalidArgumentException(sprintf('A class is not defined for the key: %s', $key));
+		}
+
+		return $this->typeMap[$key];
+	}
+
+	/**
+	 * Checks whether an element exists by key
+	 *
+	 * @param string $key Can be a class name used to register a class, or its associated key
 	 * @return bool
 	 */
-	public static function hasType($name)
+	public function has($key)
 	{
-		return isset(self::$_typeMap[$name]);
+		$key = $this->normalizeKey($key);
+
+		return isset($this->typeMap[$key]);
 	}
 
 	/**
-	 * Override an existing type.
-	 *
-	 * @param $name
-	 * @param $className
-	 */
-	public static function overrideType($name, $className)
-	{
-		if (!self::hasType($name)) {
-			throw new \RuntimeException(sprintf('Type not found: %s', $name));
-		}
-
-		if (isset(self::$_resolvedTypes[$name])) {
-			unset(self::$_resolvedTypes[$name]);
-		}
-
-		self::addType($name, $className);
-	}
-
-	/**
-	 * Get the internal type map
-	 *
+	 * Gets copy of type map
 	 * @return array
 	 */
-	public static function getTypesMap()
+	public function getTypeMap()
 	{
-		return self::$_typeMap;
+		return $this->typeMap;
+	}
+
+	/**
+	 * Generate key to be used for registration
+	 *
+	 * @param $key
+	 * @return string
+	 */
+	private function normalizeKey($key)
+	{
+		$parts = explode('\\', $key);
+		$key = array_pop($parts);
+
+		$base = strtolower(substr($key, 0, 1)) . substr($key, 1);
+
+		return strtolower(preg_replace('/([A-Z]+)/', '-$1', $base));
 	}
 }
