@@ -4,6 +4,7 @@ namespace WebImage\Config;
 
 class Configurator extends Config
 {
+	private $ignoreKeys = [];
 	/**
 	 * Get and delete a key (so that it will not be used by configure(...)
 	 *
@@ -12,14 +13,27 @@ class Configurator extends Config
 	 *
 	 * @return mixed
 	 */
-	public function getAndDel($key, $default=null)
+	public function getAndIgnore($key, $default=null)
 	{
 		$value = parent::get($key, $default);
-		$this->del($key);
+		$this->ignore($key);
 
 		return $value;
 	}
 
+	/**
+	 * Marks a config key as "config" only, meaning $this->configure() will not attempt to call any methods on the passed object
+	 * @param $key
+	 */
+	public function ignore($key)
+	{
+		if (!in_array($key, $this->ignoreKeys)) $this->ignoreKeys[] = $key;
+	}
+
+	/**
+	 * Configure an object by calling setters for each configuration item
+	 * @param $obj
+	 */
 	public function configure($obj)
 	{
 		if (!is_object($obj)) {
@@ -27,6 +41,7 @@ class Configurator extends Config
 		}
 
 		foreach($this as $key=>$val) {
+			if (in_array($key, $this->ignoreKeys)) continue; // Do not process any
 
 			$methods = $this->getPossibleMethods($key);
 
@@ -38,7 +53,7 @@ class Configurator extends Config
 			}
 
 			// We should not make it this far
-			throw new \RuntimeException(sprintf('Missing "%s" setter on %s', $key, get_class($obj)));
+			throw new \RuntimeException(sprintf('Missing "%s" setter on %s (tried %s)', $key, get_class($obj), implode(', ', $methods)));
 		}
 	}
 
@@ -52,9 +67,11 @@ class Configurator extends Config
 	protected function getPossibleMethods($key)
 	{
 		$methodKey = ucfirst($key);
+
 		return [
 			'set' . $methodKey,
-			'is' . $methodKey
+			'is' . $methodKey,
+			'add' . $methodKey
 		];
 	}
 
