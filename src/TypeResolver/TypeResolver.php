@@ -3,6 +3,7 @@
 namespace WebImage\TypeResolver;
 
 use WebImage\Config\Configurator;
+use WebImage\Config\CreatableFromConfiguratorInterface;
 
 class TypeResolver
 {
@@ -36,6 +37,12 @@ class TypeResolver
 			$configurator = new Configurator(null === $configurator ? [] : $configurator);
 		}
 
+		if (!class_exists($class)) {
+			throw new \RuntimeException(sprintf('The class %s for type %s does not exist', $key, $class));
+		} else if (!is_a($class, CreatableFromConfiguratorInterface::class, true)) {
+			throw new \RuntimeException(sprintf('The type %s of class %s must be resolved must be of type %s', $key, $class, CreatableFromConfiguratorInterface::class));
+		}
+
 		return $class::createFromConfigurator($configurator);
 	}
 
@@ -43,12 +50,12 @@ class TypeResolver
 	 * Register a class name and key
 	 *
 	 * @param string $class A resolvable class that will be associated with key
-	 * @param array|Configurator|null An associative array or Configurator of options
 	 * @param string|null $key A key that the class will be associated with (key will be generated if not supplied)
+	 * @param array|Configurator|null $configurator An associative array or Configurator of options
 	 *
 	 * @return void
 	 */
-	public function register($class, $configurator = null, $key = null)
+	public function register($class, $key, $configurator = null)
 	{
 		if (null === $key || empty($key)) {
 			$parts = explode('\\', $class);
