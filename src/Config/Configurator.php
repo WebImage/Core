@@ -43,7 +43,7 @@ class Configurator extends Config
 		foreach($this as $key=>$val) {
 			if (in_array($key, $this->ignoreKeys)) continue; // Do not process any
 
-			$methods = $this->getPossibleMethods($key);
+			$methods = $this->getPossibleMethods($key, $val);
 
 			foreach($methods as $method) {
 				if (method_exists($obj, $method)) {
@@ -60,19 +60,27 @@ class Configurator extends Config
 	/**
 	 * Get the possible method names that might exist as a setter
 	 *
-	 * @param $key
+	 * @param string $key
+	 * @param mixed|array|string|bool $key
 	 *
 	 * @return string[]
 	 */
-	protected function getPossibleMethods($key)
+	protected function getPossibleMethods(string $key, $val)
 	{
 		$methodKey = ucfirst($key);
 
-		return [
-			'set' . $methodKey,
-			'is' . $methodKey,
-			'add' . $methodKey
+		$methods = [
+			'set' . $methodKey
 		];
+
+		if (is_bool($val)) {
+			$methods[] = 'is' . $methodKey;
+			$methods[] = 'does' . $methodKey;
+		} else {
+			$methods[] = 'add' . $methodKey;
+		}
+
+		return $methods;
 	}
 
 	/**
