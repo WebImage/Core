@@ -11,14 +11,14 @@ class View implements ViewInterface, ArrayAccess
 {
 	/** @var string */
 	private $file;
+	/** @var string */
+	private $viewName;
 	/** @var array */
 	private $data = array();
 	/** @var EngineInterface */
 	private $engine;
 	/** @var ViewManager */
 	private $manager;
-	/** @var string */
-	private $viewName;
 	/** @var ViewInterface */
 	private $parent;
 
@@ -31,7 +31,7 @@ class View implements ViewInterface, ArrayAccess
 	 * @param EngineInterface|null $engine
 	 * @param null $viewName
 	 */
-	public function __construct($file, array $data, EngineInterface $engine=null, ViewManager $manager=null, $viewName=null)
+	public function __construct(string $file, array $data, EngineInterface $engine=null, ViewManager $manager=null, string $viewName=null)
 	{
 		$this->file = $file;
 		$this->data = $data;
@@ -148,7 +148,7 @@ class View implements ViewInterface, ArrayAccess
 	/**
 	 * @return string
 	 */
-	public function getViewName()
+	public function getViewName(): string
 	{
 		return $this->viewName;
 	}
@@ -226,7 +226,7 @@ class View implements ViewInterface, ArrayAccess
 	 *
 	 * @param string $helperName
 	 *
-	 * @throws MissingHelperException
+	 * @throws HelperNotFoundException
 	 *
 	 * @return mixed
 	 */

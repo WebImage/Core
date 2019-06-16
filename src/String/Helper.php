@@ -38,4 +38,19 @@ class Helper {
 	{
 		return strlen($str);
 	}
+
+	public static function pascalToHyphenated($pascalName)
+	{
+		self::keysFromPascalCase($pascalName);
+
+		return implode('-', self::keysFromPascalCase($pascalName));
+	}
+
+	private static function keysFromPascalCase($pascalName)
+	{
+		$escaped = preg_replace('/[^a-zA-Z0-9]+/', ' ', $pascalName);
+		$spaced = trim(preg_replace('/[A-Z]+/', ' \0', $escaped));
+
+		return preg_split('/ +/', $spaced);
+	}
 }

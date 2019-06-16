@@ -41,18 +41,21 @@ class FileViewFinder implements ViewFinderInterface {
 			return $this->views[$primaryView];
 		}
 
-		$files = $this->getPossibleFilePaths($views);
+		$filesViews = $this->getPossibleFilePaths($views);
+		list($viewFile, $viewName) = $this->firstExisting($filesViews);
+		$viewName = $viewName ?: $primaryView; // Default back to primary view key if nothing is found
 
-		return $this->views[$view] = $this->firstExistingFile($files, $view);
+		return $this->views[$viewName] = null === $viewFile ? null : new FoundView($viewName, $viewFile);
 	}
 
-	private function firstExistingFile($files, $view)
+	private function firstExisting($filesViews)
 	{
-		foreach ($files as $file) {
+		foreach ($filesViews as $file => $viewName) {
 			if (file_exists($file)) {
-				return $file;
+				return [$file, $viewName];
 			}
 		}
+		return [null, null];
 	}
 
 	/**
@@ -85,9 +88,9 @@ class FileViewFinder implements ViewFinderInterface {
 
 	/**
 	 * @param string|string[]|array $view
-	 * @return array
+	 * @return array [file] => viewName
 	 */
-	public function getScoredPossiblePaths($view)
+	protected function getScoredPossiblePaths($view)
 	{
 		$views = is_array($view) ? $view : [$view];
 
@@ -105,13 +108,15 @@ class FileViewFinder implements ViewFinderInterface {
 				if (!$excludeProfiles) {
 					foreach ($this->profiles as $profile) {
 						foreach ($this->extensions as $extension) {
-							$viewPaths[] = sprintf('%s~%s.%s', $base, $profile, $extension);
+							$viewPath = sprintf('%s~%s.%s', $base, $profile, $extension);
+							$viewPaths[$viewPath] = $view;
 						}
 					}
 				}
 
 				foreach ($this->extensions as $extension) {
-					$viewPaths[] = sprintf('%s.%s', $base, $extension);
+					$viewPath = sprintf('%s.%s', $base, $extension);
+					$viewPaths[$viewPath] = $view;
 				}
 			}
 		}
@@ -119,7 +124,11 @@ class FileViewFinder implements ViewFinderInterface {
 		return $viewPaths;
 	}
 
-	public function getPossibleFilePaths($view)
+	/**
+	 * @param string|string[]|array $view
+	 * @return array [file] => viewName
+	 */
+	protected function getPossibleFilePaths($view)
 	{
 		return $this->getScoredPossiblePaths($view);
 	}

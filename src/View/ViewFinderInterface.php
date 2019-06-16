@@ -7,7 +7,7 @@ interface ViewFinderInterface {
 	 * Find a view by name (or array of names)
 	 *
 	 * @param string|array $view
-	 * @return string
+	 * @return FoundView|null
 	 */
 	public function find($view);
 

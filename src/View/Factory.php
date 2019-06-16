@@ -62,16 +62,18 @@ class Factory implements ContainerAwareInterface {
 
 //		$this->callCreator($view = new View($this, $this->getEngineFromPath($path), $view, $path, $data));
 
+		$foundView = $this->findViewPath($view);
+
 		$view = new View(
-			$path = $this->findViewPath($view),
+			$path = $foundView->getView(),
 			$data,
 			$this->getEngineFromPath($path),
 			$manager,
-			$view
+			$foundView->getViewName()
 		);
 
 		$this->buildView($view);
-
+//
 		/** @var EventManager $events */
 		$events = $this->getContainer()->get(EventManager::class);
 		$events->trigger('view.created', null, $view);
@@ -79,15 +81,21 @@ class Factory implements ContainerAwareInterface {
 		return $view;
 	}
 
+	/**
+	 * @param string|array $view
+	 * @throws ViewNotFoundException
+	 * @return null|FoundView
+	 */
 	private function findViewPath($view)
 	{
-		$path = $this->finder->find($view);
+		$foundView = $this->finder->find($view);
+		$views = is_array($view) ? $view : [$view];
 
-		if (null === $path) {
-			throw new RuntimeException(sprintf('Unable to find view: %s', $view));
+		if (null === $foundView) {
+			throw new ViewNotFoundException(sprintf('Unable to find view: %s', implode(', ', $views)));
 		}
 
-		return $path;
+		return $foundView;
 	}
 
 	private function getEngineFromPath(string $path)
@@ -140,11 +148,11 @@ class Factory implements ContainerAwareInterface {
 	private function buildView(View $view)
 	{
 		if (!$this->builders->has($view->getViewName())) return;
-
-		$builderClass = $this->getContainer()->get($this->builders->get($view->getViewName()));
-		/** @var ViewBuilderInterface $builder */
-		$builder = $this->getContainer()->get($builderClass);
-		$builder->buildView($view);
+//
+//		$builderClass = $this->getContainer()->get($this->builders->get($view->getViewName()));
+//		/** @var ViewBuilderInterface $builder */
+//		$builder = $this->getContainer()->get($builderClass);
+//		$builder->buildView($view);
 	}
 
 	public function addBuilder(string $view, /*string | ViewBuilderInterface */$viewBuilder)

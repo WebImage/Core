@@ -10,6 +10,7 @@ use WebImage\Application\ApplicationInterface;
 use WebImage\Config\Config;
 use WebImage\Core\Dictionary;
 use WebImage\Http\Response;
+use WebImage\String\Helper;
 use WebImage\View\Factory;
 use WebImage\View\View;
 use WebImage\View\ViewInterface;
@@ -136,6 +137,7 @@ class AbstractController implements ControllerInterface, ContainerAwareInterface
 	{
 		$name = $this->getControllerNameForView();
 		$action = $this->getRequest()->getAttribute(ControllerInterface::DISPATCH_ACTION_ATTRIBUTE);
+		$action = strtolower(Helper::pascalToHyphenated($action));
 
 		return sprintf('%s/%s/%s', 'controllers', $name, $action);
 	}

@@ -100,14 +100,14 @@ class ViewManager {
 	 *
 	 * @param string $name
 	 *
-	 * @throws MissingHelperException When helper cannot be found
+	 * @throws HelperNotFoundException When helper cannot be found
 	 *
 	 * @return mixed
 	 */
 	public function helper($name)
 	{
 		if (!$this->helpers()->has($name)) {
-			throw new MissingHelperException('Missing view helper: ' . $name);
+			throw new HelperNotFoundException('Missing view helper: ' . $name);
 		}
 
 		$service = $this->helpers()->get($name);
