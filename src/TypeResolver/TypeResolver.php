@@ -39,11 +39,26 @@ class TypeResolver
 
 		if (!class_exists($class)) {
 			throw new \RuntimeException(sprintf('The class %s for type %s does not exist', $key, $class));
-		} else if (!is_a($class, CreatableFromConfiguratorInterface::class, true)) {
-			throw new \RuntimeException(sprintf('The type %s of class %s must be resolved must be of type %s', $key, $class, CreatableFromConfiguratorInterface::class));
+//		} else if (!is_a($class, CreatableFromConfiguratorInterface::class, true)) {
+//			throw new \RuntimeException(sprintf('The type %s of class %s must be resolved must be of type %s', $key, $class, CreatableFromConfiguratorInterface::class));
 		}
 
-		return $class::createFromConfigurator($configurator);
+		return $this->createInstance($class, $configurator);
+	}
+
+	/**
+	 * Create an instance of the requested class
+	 *
+	 * @param string $class
+	 * @param Configurator $configurator
+	 *
+	 * @return mixed
+	 */
+	protected function createInstance(string $class, Configurator $configurator)
+	{
+		$instance = is_a($class, CreatableFromConfiguratorInterface::class, true) ? $class::createFromConfigurator($configurator) : new $class;
+
+		return $instance;
 	}
 
 	/**
