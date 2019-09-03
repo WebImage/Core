@@ -5,7 +5,7 @@
     "require": {
         "league/container": "^2.4",
         "league/route": "^3.0",
-        "guzzlehttp/psr7": "^1.5",
+        "guzzlehttp/psr7": "^1.6",
         "symfony/console": "3.4.2"
     },
     "license": "MIT",
