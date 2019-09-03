@@ -15,8 +15,6 @@
             "email": "rjones@corporatewebimage.com"
         }
     ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "WebImage\\": "src/"
