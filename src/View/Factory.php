@@ -61,7 +61,6 @@ class Factory implements ContainerAwareInterface {
 		if (null === $manager) $manager = $this->createViewManager();
 
 //		$this->callCreator($view = new View($this, $this->getEngineFromPath($path), $view, $path, $data));
-
 		$foundView = $this->findViewPath($view);
 
 		$view = new View(
@@ -73,12 +72,15 @@ class Factory implements ContainerAwareInterface {
 		);
 
 		$this->buildView($view);
-//
-		/** @var EventManager $events */
-		$events = $this->getContainer()->get(EventManager::class);
-		$events->trigger('view.created', null, $view);
+
+		$this->getEventManager()->trigger('view.created', $view, $this);
 
 		return $view;
+	}
+
+	private function getEventManager(): EventManager
+	{
+		return $this->getContainer()->get(EventManager::class);
 	}
 
 	/**
@@ -88,8 +90,25 @@ class Factory implements ContainerAwareInterface {
 	 */
 	private function findViewPath($view)
 	{
-		$foundView = $this->finder->find($view);
 		$views = is_array($view) ? $view : [$view];
+
+		$foundView = null;
+
+		/**
+		 * Use events to find view (short-circuits view finder)
+		 */
+		foreach($views as $checkView) {
+			$responses = $this->getEventManager()->trigger('view.find', $view, $this);
+			foreach($responses as $response) {
+				if (null === $response) continue;
+				if (!($response instanceof FoundView)) throw new \RuntimeException('Event handlers for view.find must return an instance of ' . FoundView::class);
+
+				// Event handler returned a valid view
+				return $response;
+			}
+		}
+
+		if (null === $foundView) $foundView = $this->finder->find($view);
 
 		if (null === $foundView) {
 			throw new ViewNotFoundException(sprintf('Unable to find view: %s', implode(', ', $views)));
