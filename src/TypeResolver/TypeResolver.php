@@ -22,9 +22,7 @@ class TypeResolver
 	 */
 	public function resolve(string $key, $configurator = null)
 	{
-		if (!$this->has($key)) {
-			throw new \Exception('Invalid element: ' . $key);
-		}
+		if (!$this->has($key)) throw new \Exception('Invalid element: ' . $key);
 
 		$class = $this->getClass($key);
 
@@ -39,8 +37,6 @@ class TypeResolver
 
 		if (!class_exists($class)) {
 			throw new \RuntimeException(sprintf('The class %s for type %s does not exist', $key, $class));
-//		} else if (!is_a($class, CreatableFromConfiguratorInterface::class, true)) {
-//			throw new \RuntimeException(sprintf('The type %s of class %s must be resolved must be of type %s', $key, $class, CreatableFromConfiguratorInterface::class));
 		}
 
 		return $this->createInstance($class, $configurator);
@@ -74,8 +70,10 @@ class TypeResolver
 	{
 		if (null === $key || empty($key)) {
 			$parts = explode('\\', $class);
-			$key = $this->normalizeKey(array_pop($parts));
+			$key = array_pop($parts);
 		}
+
+		$key = $this->normalizeKey($key);
 
 		if ($this->has($key)) {
 			throw new \RuntimeException(sprintf('A class is already registered for this key: %s', $key));
