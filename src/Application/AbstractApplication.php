@@ -29,7 +29,7 @@ abstract class AbstractApplication implements ApplicationInterface
 	 */
 	public function __construct(Config $config, ServiceManagerInterface $serviceManager)
 	{
-		$this->plugins = new PluginLoader($this->getProjectPath());
+		$this->registerPlugins($config);
 		$this->setConfig($config);
 		$this->setServiceManager($serviceManager);
 
@@ -90,6 +90,25 @@ abstract class AbstractApplication implements ApplicationInterface
 	public function registerPlugin(PluginInterface $plugin)
 	{
 		$this->plugins->register($plugin);
+	}
+
+	/**
+	 * Register plugins from config
+	 * @param Config $config
+	 */
+	private function registerPlugins(Config $config)
+	{
+		/**
+		 * @var string[] $plugins
+		 */
+		$plugins = $config->get('plugins');
+
+		$this->plugins = new PluginLoader($this->getProjectPath());
+
+
+		foreach($plugins as $pluginClass) {
+			$this->registerPlugin(new $pluginClass);
+		}
 	}
 
 	/**

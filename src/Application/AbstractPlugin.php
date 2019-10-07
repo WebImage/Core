@@ -9,6 +9,11 @@ use WebImage\ServiceManager\ServiceManagerConfig;
 abstract class AbstractPlugin implements PluginInterface
 {
 	/**
+	 * Whether ::install() has already been run
+	 * @var bool
+	 */
+	private $installRan = false;
+	/**
 	 * @var string
 	 */
 	private $pluginPath;
@@ -66,12 +71,19 @@ abstract class AbstractPlugin implements PluginInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function install(ApplicationInterface $app) {}
+	public function install(ApplicationInterface $app)
+	{
+		if ($this->installRan) throw new \RuntimeException('Install has already been run for ' . $this->getManifest()->getId());
+		// Mark that install has been run to help prevent it from being run multiple times on the same pass
+		$this->installRan = true;
+	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function uninstall(ApplicationInterface $app) {}
+	public function uninstall(ApplicationInterface $app)
+	{
+	}
 
 	/**
 	 * @return Config|null
