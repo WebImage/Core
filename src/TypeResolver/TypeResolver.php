@@ -39,7 +39,10 @@ class TypeResolver
 			throw new \RuntimeException(sprintf('The class %s for type %s does not exist', $key, $class));
 		}
 
-		return $this->createInstance($class, $configurator);
+		$instance = $this->createInstance($class, $configurator);
+		if ($instance instanceof KeyResolvedTypeInterface) $instance->setResolvedTypeKey($key);
+
+		return $instance;
 	}
 
 	/**
