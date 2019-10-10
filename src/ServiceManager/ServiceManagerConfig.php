@@ -54,7 +54,7 @@ class ServiceManagerConfig extends Config implements ServiceManagerConfigInterfa
 	/**
 	 * Normalize config format to allow classes to be added to service stack
 	 *
-	 * @param Config $config
+	 * @param iterable $config
 	 *
 	 * @return Config
 	 */

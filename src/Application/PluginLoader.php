@@ -40,9 +40,6 @@ class PluginLoader
 
 	public function register(PluginInterface $plugin)
 	{
-		if (null === $plugin->getManifest()) {
-			echo '<pre>';print_r($plugin);echo '<hr />' . __FILE__ .':'.__LINE__;exit;
-		}
 		$id = $plugin->getManifest()->getId();
 
 		if ($this->registered->has($id)) {
