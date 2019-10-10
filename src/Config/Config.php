@@ -10,12 +10,13 @@ class Config extends Dictionary {
 	 *
 	 * @param string $name
 	 * @param mixed|null $default
+	 * @param bool $dotTraverse Whether a dot (".") in the name should be used to traverse through the config hierarchy (false treats name as flat name)
 	 *
 	 * @return mixed|null
 	 */
-	public function get($name, $default = null)
+	public function get($name, $default = null, $dotTraverse=true)
 	{
-		$keys = explode('.', $name);
+		$keys = $dotTraverse ? explode('.', $name) : [$name];
 
 		$value = $this->normalizeParentGet($keys[0], $default);
 
