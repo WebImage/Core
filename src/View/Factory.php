@@ -61,7 +61,7 @@ class Factory implements ContainerAwareInterface {
 		if (null === $manager) $manager = $this->createViewManager();
 
 //		$this->callCreator($view = new View($this, $this->getEngineFromPath($path), $view, $path, $data));
-		$foundView = $this->findViewPath($view);
+		$foundView = $this->findView($view);
 
 		$view = new View(
 			$path = $foundView->getView(),
@@ -70,7 +70,9 @@ class Factory implements ContainerAwareInterface {
 			$manager,
 			$foundView->getViewName()
 		);
-
+//		if (null === $foundView) {
+//			throw new ViewNotFoundException(sprintf('Unable to find view: %s', implode(', ', $views)));
+//		}
 		$this->buildView($view);
 
 		$this->getEventManager()->trigger('view.created', $view, $this);
@@ -88,7 +90,7 @@ class Factory implements ContainerAwareInterface {
 	 * @throws ViewNotFoundException
 	 * @return null|FoundView
 	 */
-	private function findViewPath($view)
+	public function findView($view): ?FoundView
 	{
 		$views = is_array($view) ? $view : [$view];
 
@@ -109,10 +111,6 @@ class Factory implements ContainerAwareInterface {
 		}
 
 		if (null === $foundView) $foundView = $this->finder->find($view);
-
-		if (null === $foundView) {
-			throw new ViewNotFoundException(sprintf('Unable to find view: %s', implode(', ', $views)));
-		}
 
 		return $foundView;
 	}

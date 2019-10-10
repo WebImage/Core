@@ -28,11 +28,11 @@ class ViewManager {
 	/**
 	 * Create a new view
 	 *
-	 * @param $view
+	 * @param string $view
 	 * @param array $data
 	 * @return View
 	 */
-	public function view($view, array $data=[])
+	public function view(string $view, array $data=[])
 	{
 		return $this->factory->create($view, $data, $this);
 	}
@@ -111,7 +111,18 @@ class ViewManager {
 		}
 
 		$service = $this->helpers()->get($name);
+		$helper =  $this->factory->getContainer()->get($service);
 
-		return $this->factory->getContainer()->get($service);
+		// Add ViewManager instance
+		if ($helper instanceof ViewManagerAwareInterface) {
+			$helper->setViewManager($this);
+		}
+
+		return $helper;
+	}
+
+	public function getFactory(): Factory
+	{
+		return $this->factory;
 	}
 }
