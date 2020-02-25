@@ -101,7 +101,7 @@ abstract class AbstractApplication implements ApplicationInterface
 		/**
 		 * @var string[] $plugins
 		 */
-		$plugins = $config->get('plugins');
+		$plugins = $config->get('plugins', []);
 
 		$this->plugins = new PluginLoader($this->getProjectPath());
 
