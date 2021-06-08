@@ -24,8 +24,6 @@ class Helper {
 
 	public static function endsWith($str, $with)
 	{
-		echo 'STR: ' . $str . '<br />';
-		echo 'COMPARE: (' . static::sub($str, $len = static::len($with), $len) . ' == ' . $with . ')<br />';
 		return (static::sub($str, $len = -static::len($with), $len) == $with);
 	}
 
@@ -44,6 +42,21 @@ class Helper {
 		self::keysFromPascalCase($pascalName);
 
 		return implode('-', self::keysFromPascalCase($pascalName));
+	}
+
+	public static function pascalToUnderscore(string $pascalName)
+	{
+		return implode('-', self::keysFromPascalCase($pascalName));
+	}
+
+	public static function camelToHyphenated(string $camelName)
+	{
+		return implode('-', self::keysFromPascalCase($camelName));
+	}
+
+	public static function camelToUnderscore(string $camelName)
+	{
+		return implode('_', self::keysFromPascalCase($camelName));
 	}
 
 	private static function keysFromPascalCase($pascalName)
