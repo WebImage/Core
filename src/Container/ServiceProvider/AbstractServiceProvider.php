@@ -7,6 +7,13 @@ use WebImage\Config\Config;
 
 abstract class AbstractServiceProvider extends \League\Container\ServiceProvider\AbstractServiceProvider
 {
+	protected $provides = [];
+
+	public function provides(string $id): bool
+	{
+		return in_array($id, $this->provides);
+	}
+
 	/**
 	 * Convenience method for returning application configuration
 	 * @return Config

@@ -2,20 +2,22 @@
 
 namespace WebImage\Container;
 
+use League\Container\Container as BaseContainer;
+use Psr\Container\ContainerInterface;
 use League\Container\ContainerAwareInterface;
-use League\Container\Definition\DefinitionFactoryInterface;
-use League\Container\Inflector\InflectorAggregateInterface;
-use League\Container\ServiceProvider\ServiceProviderAggregateInterface;
 
-class Container extends \League\Container\Container {
-	protected function getFromThisContainer($alias, array $args = [])
+class Container extends BaseContainer {
+	/**
+	 * @inheritDoc
+	 */
+	public function get($id)
 	{
-		$val = parent::getFromThisContainer($alias, $args);
+		$instance = parent::get($id);
 
-		if ($val instanceof ContainerAwareInterface) {
-			$val->setContainer($this);
+		if ($instance instanceof ContainerAwareInterface) {
+			$instance->setContainer($this);
 		}
 
-		return $val;
+		return $instance;
 	}
 }

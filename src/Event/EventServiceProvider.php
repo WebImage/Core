@@ -2,7 +2,7 @@
 
 namespace WebImage\Event;
 
-use League\Container\ServiceProvider\AbstractServiceProvider;
+use WebImage\Container\ServiceProvider\AbstractServiceProvider;
 
 class EventServiceProvider extends AbstractServiceProvider
 {
@@ -10,8 +10,8 @@ class EventServiceProvider extends AbstractServiceProvider
 		ManagerInterface::class
 	];
 
-	public function register()
+	public function register(): void
 	{
-		$this->getContainer()->share(ManagerInterface::class, Manager::class);
+		$this->getContainer()->addShared(ManagerInterface::class, Manager::class);
 	}
 }

@@ -2,9 +2,9 @@
 
 namespace WebImage\Paths;
 
-use League\Container\ServiceProvider\AbstractServiceProvider;
 use WebImage\Application\ApplicationInterface;
 use WebImage\Config\Config;
+use WebImage\Container\ServiceProvider\AbstractServiceProvider;
 
 class PathManagerServiceProvider extends AbstractServiceProvider
 {
@@ -15,7 +15,7 @@ class PathManagerServiceProvider extends AbstractServiceProvider
 	/**
 	 * @inheritdoc
 	 */
-	public function register()
+	public function register(): void
 	{
 		$paths = $this->getPaths();
 
@@ -24,7 +24,7 @@ class PathManagerServiceProvider extends AbstractServiceProvider
 			$manager->add($path);
 		}
 
-		$this->getContainer()->share(PathManagerInterface::class, $manager);
+		$this->getContainer()->addShared(PathManagerInterface::class, $manager);
 	}
 
 	protected function getPaths()
