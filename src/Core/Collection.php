@@ -36,6 +36,12 @@ class Collection implements Countable, Iterator, ArrayAccess
 		$this->__unset($index);
 	}
 
+	public function add($item): void
+	{
+		$this->data[] = $item;
+		$this->count = null; // Reset count
+	}
+
 	public function insert($index, $item): void
 	{
 		array_splice($this->data, $index, 0, [$item]);
@@ -77,6 +83,21 @@ class Collection implements Countable, Iterator, ArrayAccess
 		foreach($this as $value) {
 			$key = call_user_func($keyGenerator, $value);
 			$d->set($key, $value);
+		}
+
+		return $d;
+	}
+
+	public function createMultiValueLookup(callable $keyGenerator)
+	{
+		$d = new Dictionary();
+
+		foreach($this as $value) {
+			$key = call_user_func($keyGenerator, $value);
+			if (!$d->has($key)) {
+				$d->set($key, new static());
+			}
+			$d->get($key)->add($value);
 		}
 
 		return $d;
