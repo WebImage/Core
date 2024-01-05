@@ -12,7 +12,6 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 	 * @var array Data
 	 */
 	protected $data = array();
-	protected $count = 0;
 
 	public function __construct(array $data=[])
 	{
@@ -22,8 +21,6 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 			} else {
 				$this->data[$key] = $value;
 			}
-
-			$this->count++;
 		}
 	}
 
@@ -77,7 +74,6 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 				} else {
 					$this->data[$key] = $value;
 				}
-				$this->count++;
 			}
 		}
 	}
@@ -99,8 +95,6 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 		} else {
 			$this->data[$name] = $value;
 		}
-
-		$this->count++;
 	}
 
 	/**
@@ -264,14 +258,13 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 	 */
 	public function count()
 	{
-		return $this->count;
+		return count($this->data);
 	}
 
 	public function __unset($name)
 	{
 		if ($this->has($name)) {
 			unset($this->data[$name]);
-			$this->count--;
 		}
 	}
 
