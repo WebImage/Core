@@ -57,7 +57,7 @@ class Collection implements Countable, Iterator, ArrayAccess
 	 *
 	 * @return array
 	 */
-	public function toArray()
+	public function toArray(): array
 	{
 		return $this->data;
 	}
@@ -76,14 +76,29 @@ class Collection implements Countable, Iterator, ArrayAccess
 		return $c;
 	}
 
-	public function createLookup(callable $keyGenerator)
+	/**
+	 * Convenience method to allow looping over items in Collection without reset iterator for the current
+	 * Especially helpful with nested recurrences of same collection
+	 * @param callable $each
+	 * @return void
+	 */
+	public function each(callable $each): void
+	{
+		$objs = clone $this;
+		foreach($objs as $ix => $obj) {
+			call_user_func($each, $obj, $ix);
+		}
+	}
+
+	public function createLookup(callable $keyGenerator, callable $valueMapper=null)
 	{
 		$d = new Dictionary();
 
-		foreach($this as $value) {
-			$key = call_user_func($keyGenerator, $value);
+		$this->each(function($value, $ix) use ($d, $keyGenerator, $valueMapper) {
+			$key = call_user_func($keyGenerator, $value, $ix);
+			$value = $valueMapper === null ? $value : call_user_func($valueMapper, $value, $ix);
 			$d->set($key, $value);
-		}
+		});
 
 		return $d;
 	}
@@ -92,13 +107,13 @@ class Collection implements Countable, Iterator, ArrayAccess
 	{
 		$d = new Dictionary();
 
-		foreach($this as $value) {
+		$this->each(function($value) use ($d, $keyGenerator) {
 			$key = call_user_func($keyGenerator, $value);
 			if (!$d->has($key)) {
-				$d->set($key, new static());
+				$d->set($key, new Static());
 			}
 			$d->get($key)->add($value);
-		}
+		});
 
 		return $d;
 	}
