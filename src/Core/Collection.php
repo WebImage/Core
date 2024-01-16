@@ -12,7 +12,6 @@ class Collection implements Countable, Iterator, ArrayAccess
 	 * @var array Data
 	 */
 	protected $data = array();
-	protected $count = null;
 
 	public function __construct(array $data=[])
 	{
@@ -39,7 +38,6 @@ class Collection implements Countable, Iterator, ArrayAccess
 	public function add($item): void
 	{
 		$this->data[] = $item;
-		$this->count = null; // Reset count
 	}
 
 	public function insert($index, $item): void
@@ -256,14 +254,13 @@ class Collection implements Countable, Iterator, ArrayAccess
 	 */
 	public function count()
 	{
-		return $this->count = $this->count ?: count($this->data);
+		return count($this->data);
 	}
 
 	public function __unset($name)
 	{
 		if ($this->has($name)) {
 			unset($this->data[$name]);
-			$this->count--;
 		}
 	}
 
