@@ -106,6 +106,18 @@ class Collection implements Countable, Iterator, ArrayAccess
 		}
 	}
 
+	/**
+	 * Merge collection into existing collection
+	 * @param Collection $collection
+	 * @return void
+	 */
+	public function merge(Collection $collection)
+	{
+		foreach($collection as $item) {
+			$this->add($item);
+		}
+	}
+
 	public function createLookup(callable $keyGenerator, callable $valueMapper=null)
 	{
 		$d = new Dictionary();
