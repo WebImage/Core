@@ -75,6 +75,24 @@ class Collection implements Countable, Iterator, ArrayAccess
 	}
 
 	/**
+	 * @param callable $filterCallback
+	 * @return $this
+	 */
+	public function filter(callable $filterCallback): Collection
+	{
+		$c = clone $this;
+		$c->data = [];
+
+		foreach($this as $key => $item) {
+			$include = call_user_func($filterCallback, $item, $key);
+			if (!is_bool($include)) throw new \InvalidArgumentException(__METHOD__ . ' callback must return boolean');
+
+			if ($include) $c->add($item);
+		}
+		return $c;
+	}
+
+	/**
 	 * Convenience method to allow looping over items in Collection without reset iterator for the current
 	 * Especially helpful with nested recurrences of same collection
 	 * @param callable $each
