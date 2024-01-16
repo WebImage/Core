@@ -3,7 +3,6 @@
 namespace WebImage\Core;
 
 class ArrayHelper {
-
 	/**
 	 * Merge an array recursively without clobbering previously set key structures
 	 *
@@ -39,7 +38,7 @@ class ArrayHelper {
 	 *
 	 * @param array $array
 	 * @param callable $callable $callable($val, $key) Tests value for trueness and returns TRUE if criteria matches
-	 * 
+	 *
 	 * @return mixed|void Mixed if value found, void if not
 	 */
 	public static function first(array $array, callable $callable)
@@ -72,7 +71,7 @@ class ArrayHelper {
 	 * @param string $pathHint A description to help indicate where in an array hierarchy the array/key is located
 	 * @param array $requiredProperties The keys that MUST be present in the array to be successful
 	 * @param array $optionalProperties The keys that CAN be present (anything not in $required or $optional are considered invalid)
-	 * 
+	 *
 	 * @throws RuntimeException
 	 */
 	public static function assertKeys(array $arr, $pathHint, array $requiredProperties, array $optionalProperties=[])
@@ -85,6 +84,15 @@ class ArrayHelper {
 
 		foreach(array_keys($arr) as $property) {
 			if (!in_array($property, $allowedFields)) throw new \RuntimeException($pathHint . ' has unknown property: ' . $property);
+		}
+	}
+
+	public static function assertItemTypes(array $arr, string $type)
+	{
+		foreach($arr as $item) {
+			$itemType = gettype($item);
+			if ($itemType != 'object' && $itemType != $type) throw new \InvalidArgumentException('Expecting ' . $type . ' but found ' . $itemType);
+			else if ($itemType == 'object' && !($item instanceof $type)) throw new \InvalidArgumentException('Expecting ' . $type . ' but found ' . (is_object($item) ? get_class($item) : 'x'.$itemType));
 		}
 	}
 }
