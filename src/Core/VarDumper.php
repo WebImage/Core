@@ -18,8 +18,9 @@ class VarDumper
 	{
 		switch ($var['type']) {
 			case 'object':
+				$text = '';
 				if (!$var['exclude']) {
-					$text = self::renderVarTypeAndValue($var, $depth);
+					$text .= self::renderVarTypeAndValue($var, $depth);
 					$text .= self::renderVarChildren($var, $depth + 1);
 				}
 				return $text;
@@ -100,7 +101,7 @@ class VarDumper
 
 	private static function renderLine(string $text, int $depth = 0)
 	{
-		return str_repeat(' ', 2 * $depth) . $text . PHP_EOL;
+		return str_repeat(' ', 4 * $depth) . $text . PHP_EOL;
 	}
 
 	public static function structure($var, array $excludeClasses = [])
