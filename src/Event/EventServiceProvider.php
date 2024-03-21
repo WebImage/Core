@@ -7,11 +7,11 @@ use WebImage\Container\ServiceProvider\AbstractServiceProvider;
 class EventServiceProvider extends AbstractServiceProvider
 {
 	protected $provides = [
-		ManagerInterface::class
+		EventManagerInterface::class
 	];
 
 	public function register(): void
 	{
-		$this->getContainer()->addShared(ManagerInterface::class, Manager::class);
+		$this->getContainer()->addShared(EventManagerInterface::class, EventManager::class);
 	}
 }
