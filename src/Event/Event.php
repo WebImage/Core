@@ -15,9 +15,10 @@ class Event {
 	 * Event constructor.
 	 *
 	 * @param string $type
-	 * @param mixed $sender
+	 * @param mixed $type
+	 * @param ?object $sender
 	 */
-	public function __construct($type, $data, $sender)
+	public function __construct(string $type, $data, ?object $sender = null)
 	{
 		$this->type = $type;
 		$this->data = $data;
