@@ -1,10 +1,8 @@
 <?php
 
 namespace WebImage\Event;
-/**
- * @deprecated Use EventManager instead
- */
-class Manager implements ManagerInterface
+
+class EventManager implements EventManagerInterface
 {
 	private $listeners = [];
 
@@ -15,7 +13,7 @@ class Manager implements ManagerInterface
 	 * @param int $priority
 	 * @return void
 	 */
-	public function listen($event, $handler, $priority = Manager::MEDIUM_PRIORITY)
+	public function listen($event, $handler, $priority = EventManager::MEDIUM_PRIORITY)
 	{
 		$this->listeners[$event][$priority][] = $handler;
 	}
