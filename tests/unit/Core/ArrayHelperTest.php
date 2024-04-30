@@ -41,6 +41,11 @@ class ArrayHelperTest extends \PHPUnit\Framework\TestCase
 		$this->assertTrue(\WebImage\Core\ArrayHelper::isAssociative([]));
 	}
 
+	public function testIsAssociativeFalseForEmptyArraysWhenParameterSet()
+	{
+		$this->assertFalse(\WebImage\Core\ArrayHelper::isAssociative([], true));
+	}
+
 	public function testAssertKeysRequiredKeys()
 	{
 		$this->expectException(\InvalidArgumentException::class);

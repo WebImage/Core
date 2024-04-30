@@ -59,11 +59,14 @@ class ArrayHelper {
 	 * Empty arrays will return TRUE, so it is imperative to check for empty arrays first.
 	 *
 	 * @param array $arr
+	 * @param bool $falseOnEmpty If TRUE, will return FALSE if the array is empty
 	 *
 	 * @return bool
 	 */
-	public static function isAssociative(array $arr): bool
+	public static function isAssociative(array $arr, bool $falseOnEmpty = false): bool
 	{
+		if ($falseOnEmpty && empty($arr)) return false;
+
 		return array_keys($arr) !== range(0, count($arr)-1);
 	}
 
