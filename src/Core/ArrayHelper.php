@@ -2,6 +2,8 @@
 
 namespace WebImage\Core;
 
+use InvalidArgumentException;
+
 class ArrayHelper {
 	/**
 	 * Merge an array recursively without clobbering previously set key structures
@@ -53,7 +55,8 @@ class ArrayHelper {
 	}
 
 	/**
-	 * Check if an array is an associative array
+	 * Check if an array is an associative array.
+	 * Empty arrays will return TRUE, so it is imperative to check for empty arrays first.
 	 *
 	 * @param array $arr
 	 *
@@ -72,18 +75,18 @@ class ArrayHelper {
 	 * @param array $requiredProperties The keys that MUST be present in the array to be successful
 	 * @param array $optionalProperties The keys that CAN be present (anything not in $required or $optional are considered invalid)
 	 *
-	 * @throws RuntimeException
+	 * @throws InvalidArgumentException
 	 */
 	public static function assertKeys(array $arr, $pathHint, array $requiredProperties, array $optionalProperties=[])
 	{
 		$allowedFields = array_merge($requiredProperties, $optionalProperties);
 
 		foreach($requiredProperties as $requiredProperty) {
-			if (!array_key_exists($requiredProperty, $arr)) throw new \RuntimeException($pathHint . ' missing required property: ' . $requiredProperty);
+			if (!array_key_exists($requiredProperty, $arr)) throw new InvalidArgumentException($pathHint . ' missing required property: ' . $requiredProperty);
 		}
 
 		foreach(array_keys($arr) as $property) {
-			if (!in_array($property, $allowedFields)) throw new \RuntimeException($pathHint . ' has unknown property: ' . $property);
+			if (!in_array($property, $allowedFields)) throw new InvalidArgumentException($pathHint . ' has unknown property: ' . $property);
 		}
 	}
 
@@ -91,8 +94,8 @@ class ArrayHelper {
 	{
 		foreach($arr as $item) {
 			$itemType = gettype($item);
-			if ($itemType != 'object' && $itemType != $type) throw new \InvalidArgumentException('Expecting ' . $type . ' but found ' . $itemType);
-			else if ($itemType == 'object' && !($item instanceof $type)) throw new \InvalidArgumentException('Expecting ' . $type . ' but found ' . (is_object($item) ? get_class($item) : 'x'.$itemType));
+			if ($itemType != 'object' && $itemType != $type) throw new InvalidArgumentException('Expecting ' . $type . ' but found ' . $itemType);
+			else if ($itemType == 'object' && !($item instanceof $type)) throw new InvalidArgumentException('Expecting ' . $type . ' but found ' . (is_object($item) ? get_class($item) : 'x' . $itemType));
 		}
 	}
 }
