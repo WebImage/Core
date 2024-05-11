@@ -12,16 +12,14 @@ class JsonImporter
 	 *
 	 * @return Config
 	 */
-	public static function importFromString(Config $config, $str)
+	public static function importFromString($str): Config
 	{
 		if (!is_string($str)) {
 			throw new \InvalidArgumentException(sprintf('%s was expecting a string value', __METHOD__));
 		}
 
 		$json = json_decode($str, true);
-		$json_config = new Config($json);
-		$config->merge($json_config);
 
-		return $config;
+		return new Config($json);
 	}
 }
