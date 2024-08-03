@@ -4,16 +4,12 @@ namespace WebImage\Event;
 
 class EventManager implements EventManagerInterface
 {
-	private $listeners = [];
+	private array $listeners = [];
 
 	/**
-	 * Listen for an event
-	 * @param $event
-	 * @param callable $handler With a function/method signature of $handler(Event $event)
-	 * @param int $priority
-	 * @return void
+	 * @inheritDoc
 	 */
-	public function listen($event, $handler, $priority = EventManagerInterface::MEDIUM_PRIORITY)
+	public function listen(string $event, callable $handler, int $priority = EventManagerInterface::MEDIUM_PRIORITY): void
 	{
 		$this->listeners[$event][$priority][] = $handler;
 	}

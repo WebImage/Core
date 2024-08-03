@@ -14,11 +14,11 @@ class Config extends Dictionary {
 	 *
 	 * @return mixed|null
 	 */
-	public function get($name, $default = null, $dotTraverse=true)
+	public function get($name, $default = null, bool $dotTraverse=true)
 	{
 		$keys = $dotTraverse ? explode('.', $name) : [$name];
 
-		$value = parent::get($keys[0], $default);
+		$value = $this->normalizeParentGet($keys[0], $default);
 
 		if ($value != $default) {
 			for ($i = 1, $j = count($keys); $i < $j; $i++) {
@@ -27,5 +27,24 @@ class Config extends Dictionary {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Return $default When parent returns empty array
+	 * Normally Dictionary::get(...) returns an empty array if a key is defined as an empty array, but Config should treat this the same as $default
+	 * @param $name
+	 * @param null $default
+	 *
+	 * @return mixed|null
+	 */
+	private function normalizeParentGet($name, $default = null)
+	{
+		$get = parent::get($name, $default);
+
+		if (is_array($get) && count($get) == 0) {
+			$get = $default;
+		}
+
+		return $get;
 	}
 }

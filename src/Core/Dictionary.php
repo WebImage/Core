@@ -295,7 +295,7 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 
 	public function del($name)
 	{
-		return $this->__unset($name);
+		$this->__unset($name);
 	}
 
 	/**

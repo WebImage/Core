@@ -9,12 +9,14 @@ interface EventManagerInterface
 	const LOW_PRIORITY = 0;
 
 	/**
-	 * @param string
-	 * @param callable $handler
+	 * Listen for an event
+	 * @param string $event
+	 * @param callable $handler With a function/method signature of $handler(Event $event)
+	 * @param int $priority
 	 *
-	 * @return mixed
+	 * @return void
 	 */
-	public function listen($event, $handler, $priority = self::MEDIUM_PRIORITY);
+	public function listen(string $event, callable $handler, int $priority = self::MEDIUM_PRIORITY): void;
 
 	/**
 	 * @param string|Event $event
@@ -23,5 +25,5 @@ interface EventManagerInterface
 	 *
 	 * @return mixed[] Responses from all listeners
 	 */
-	public function trigger($event, $data, ?object $sender = null);
+	public function trigger($event, $data, ?object $sender = null): array;
 }
