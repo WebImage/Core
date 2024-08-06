@@ -37,11 +37,13 @@ class Collection implements Countable, Iterator, ArrayAccess
 
 	public function add($item): void
 	{
+		$this->assertValidItem($item);
 		$this->data[] = $item;
 	}
 
 	public function insert($index, $item): void
 	{
+		$this->assertValidItem($item);
 		array_splice($this->data, $index, 0, [$item]);
 	}
 
@@ -114,11 +116,12 @@ class Collection implements Countable, Iterator, ArrayAccess
 	public function merge(Collection $collection)
 	{
 		foreach($collection as $item) {
+			$this->assertValidItem($item);
 			$this->add($item);
 		}
 	}
 
-	public function createLookup(callable $keyGenerator, callable $valueMapper=null)
+	public function createLookup(callable $keyGenerator, callable $valueMapper=null): Dictionary
 	{
 		$d = new Dictionary();
 
@@ -131,14 +134,14 @@ class Collection implements Countable, Iterator, ArrayAccess
 		return $d;
 	}
 
-	public function createMultiValueLookup(callable $keyGenerator)
+	public function createMultiValueLookup(callable $keyGenerator): Dictionary
 	{
 		$d = new Dictionary();
 
 		$this->each(function($value) use ($d, $keyGenerator) {
 			$key = call_user_func($keyGenerator, $value);
 			if (!$d->has($key)) {
-				$d->set($key, new Static());
+				$d->set($key, new static());
 			}
 			$d->get($key)->add($value);
 		});
@@ -256,6 +259,7 @@ class Collection implements Countable, Iterator, ArrayAccess
 	 */
 	public function offsetSet($offset, $value)
 	{
+		$this->assertValidItem($value);
 		$this->__set($offset, $value);
 	}
 
@@ -302,6 +306,7 @@ class Collection implements Countable, Iterator, ArrayAccess
 	public function __set($index, $value)
 	{
 		if ($index !== null && !is_numeric($index)) throw new \InvalidArgumentException('Cannot set non-numeric index on ' . __CLASS__);
+		$this->assertValidItem($value);
 
 		if ($index === null) $this->data[] = $value;
 		else $this->data[$index] = $value;
