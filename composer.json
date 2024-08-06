@@ -2,6 +2,7 @@
     "name": "webimage/core",
     "description": "Core framework library",
     "type": "library",
+    "version": "1.3.5",
     "require": {
         "league/container": "^4.1"
     },
