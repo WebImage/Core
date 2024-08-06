@@ -6,6 +6,10 @@ use ArrayAccess;
 use Countable;
 use Iterator;
 
+/**
+ * @template T
+ * @implements ArrayAccess<int, T>
+ */
 class Collection implements Countable, Iterator, ArrayAccess
 {
 	/**
@@ -13,6 +17,11 @@ class Collection implements Countable, Iterator, ArrayAccess
 	 */
 	protected array $data = array();
 
+	/**
+	 * Constructor
+	 *
+	 * @param T[] $data
+	 */
 	public function __construct(array $data=[])
 	{
 		foreach($data as $key => $value) {
@@ -20,6 +29,11 @@ class Collection implements Countable, Iterator, ArrayAccess
 		}
 	}
 
+	/**
+	 * @param int $index
+	 * @param $default
+	 * @return T
+	 */
 	public function get(int $index, $default = null)/*: mixed @TODO PHP 8*/
 	{
 		return $this->has($index) ? $this->data[$index] : $default;
@@ -35,12 +49,22 @@ class Collection implements Countable, Iterator, ArrayAccess
 		$this->__unset($index);
 	}
 
+	/**
+	 * Add an item to the collection
+	 *
+	 * @param T $item
+	 */
 	public function add($item): void
 	{
 		$this->assertValidItem($item);
 		$this->data[] = $item;
 	}
 
+	/**
+	 * @param $index
+	 * @param T $item
+	 * @return void
+	 */
 	public function insert($index, $item): void
 	{
 		$this->assertValidItem($item);
@@ -55,7 +79,7 @@ class Collection implements Countable, Iterator, ArrayAccess
 	/**
 	 * Return an associative array of the stored data.
 	 *
-	 * @return array
+	 * @return T[]
 	 */
 	public function toArray(): array
 	{
@@ -152,7 +176,7 @@ class Collection implements Countable, Iterator, ArrayAccess
 	 * (PHP 5 &gt;= 5.0.0)<br/>
 	 * Return the current element
 	 * @link http://php.net/manual/en/iterator.current.php
-	 * @return mixed Can return any type.
+	 * @return T Can return any type.
 	 */
 	public function current()
 	{
@@ -238,7 +262,7 @@ class Collection implements Countable, Iterator, ArrayAccess
 	 * @param mixed $offset <p>
 	 * The offset to retrieve.
 	 * </p>
-	 * @return mixed Can return all value types.
+	 * @return T Can return all value types.
 	 */
 	public function offsetGet($offset)
 	{
@@ -298,6 +322,10 @@ class Collection implements Countable, Iterator, ArrayAccess
 		}
 	}
 
+	/**
+	 * @param $name
+	 * @return T
+	 */
 	public function __get($name)
 	{
 		return $this->get($name);
