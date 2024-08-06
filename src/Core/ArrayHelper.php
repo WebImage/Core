@@ -10,7 +10,7 @@ class ArrayHelper {
 	 *
 	 * @return array
 	 */
-	public static function merge(array $_)
+	public static function merge(array $_): array
 	{
 		$tgt = [];
 

@@ -7,7 +7,7 @@ use WebImage\Config\Config;
 
 abstract class AbstractServiceProvider extends \League\Container\ServiceProvider\AbstractServiceProvider
 {
-	protected $provides = [];
+	protected array $provides = [];
 
 	public function provides(string $id): bool
 	{

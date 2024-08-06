@@ -11,7 +11,7 @@ class Collection implements Countable, Iterator, ArrayAccess
 	/**
 	 * @var array Data
 	 */
-	protected $data = array();
+	protected array $data = array();
 
 	public function __construct(array $data=[])
 	{
@@ -183,7 +183,7 @@ class Collection implements Countable, Iterator, ArrayAccess
 	 *
 	 * @return array
 	 */
-	public function keys()
+	public function keys(): array
 	{
 		return array_keys($this->data);
 	}
@@ -195,7 +195,7 @@ class Collection implements Countable, Iterator, ArrayAccess
 	 * @return boolean The return value will be casted to boolean and then evaluated.
 	 * Returns true on success or false on failure.
 	 */
-	public function valid()
+	public function valid(): bool
 	{
 		return ($this->key() !== null);
 	}
@@ -223,7 +223,7 @@ class Collection implements Countable, Iterator, ArrayAccess
 	 * <p>
 	 * The return value will be casted to boolean if non-boolean was returned.
 	 */
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		return $this->__isset($offset);
 	}
@@ -282,7 +282,7 @@ class Collection implements Countable, Iterator, ArrayAccess
 	 * <p>
 	 * The return value is cast to an integer.
 	 */
-	public function count()
+	public function count(): int
 	{
 		return count($this->data);
 	}

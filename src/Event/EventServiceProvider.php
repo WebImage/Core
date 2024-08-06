@@ -6,7 +6,7 @@ use WebImage\Container\ServiceProvider\AbstractServiceProvider;
 
 class EventServiceProvider extends AbstractServiceProvider
 {
-	protected $provides = [
+	protected array $provides = [
 		EventManagerInterface::class
 	];
 

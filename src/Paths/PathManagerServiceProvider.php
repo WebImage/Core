@@ -8,7 +8,7 @@ use WebImage\Container\ServiceProvider\AbstractServiceProvider;
 
 class PathManagerServiceProvider extends AbstractServiceProvider
 {
-	protected $provides = [
+	protected array $provides = [
 		PathManagerInterface::class
 	];
 
