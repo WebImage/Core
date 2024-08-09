@@ -2,27 +2,30 @@
 
 namespace WebImage\TypeResolver;
 
+use Exception;
+use InvalidArgumentException;
+use RuntimeException;
 use WebImage\Config\Configurator;
 use WebImage\Config\CreatableFromConfiguratorInterface;
 
 class TypeResolver
 {
 	/** @var array key => className */
-	private $typeMap = [];
-	private $typeConfigurator = [];
+	private array $typeMap          = [];
+	private array $typeConfigurator = [];
 
 	/**
 	 * Gets an instantiated element by name (if an ElementInterface is passed directly it will be returned as is)
 	 *
-	 * @param string String reference to a class, as defined by $typeMap
+	 * @param string $key String reference to a class, as defined by $typeMap
 	 * @param array|Configurator|null An associative array or Configurator of options
 	 *
 	 * @return object
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function resolve(string $key, $configurator = null)
 	{
-		if (!$this->has($key)) throw new \Exception('Invalid element: ' . $key);
+		if (!$this->has($key)) throw new Exception('Invalid element: ' . $key);
 
 		$class = $this->getClass($key);
 
@@ -36,7 +39,7 @@ class TypeResolver
 		}
 
 		if (!class_exists($class)) {
-			throw new \RuntimeException(sprintf('The class %s for type %s does not exist', $key, $class));
+			throw new RuntimeException(sprintf('The class %s for type %s does not exist', $key, $class));
 		}
 
 		$instance = $this->createInstance($class, $configurator);
@@ -55,9 +58,7 @@ class TypeResolver
 	 */
 	protected function createInstance(string $class, Configurator $configurator)
 	{
-		$instance = is_a($class, CreatableFromConfiguratorInterface::class, true) ? $class::createFromConfigurator($configurator) : new $class;
-
-		return $instance;
+		return is_a($class, CreatableFromConfiguratorInterface::class, true) ? $class::createFromConfigurator($configurator) : new $class;
 	}
 
 	/**
@@ -69,9 +70,9 @@ class TypeResolver
 	 *
 	 * @return void
 	 */
-	public function register($class, $key, $configurator = null)
+	public function register(string $class, ?string $key, $configurator = null)
 	{
-		if (null === $key || empty($key)) {
+		if ($key === null || empty($key)) {
 			$parts = explode('\\', $class);
 			$key = array_pop($parts);
 		}
@@ -79,7 +80,7 @@ class TypeResolver
 		$key = $this->normalizeKey($key);
 
 		if ($this->has($key)) {
-			throw new \RuntimeException(sprintf('A class is already registered for this key: %s', $key));
+			throw new RuntimeException(sprintf('A class is already registered for this key: %s', $key));
 		}
 
 		if (null !== $configurator) $this->typeConfigurator[$key] = $configurator;
@@ -88,22 +89,22 @@ class TypeResolver
 	}
 
 	/**
-	 * Unregiser a class name or key
+	 * Unregister a class name or key
 	 *
 	 * @param string $key The class name or key to unregister (class name is converted to key)
 	 *
 	 * @return void
 	 */
-	public function unregister($key)
+	public function unregister(string $key)
 	{
 		$parts = explode('\\', $key);
 		$key = $this->normalizeKey(array_pop($parts));
 
 		if (!isset($this->typeMap[$key])) {
-			throw new \RuntimeException(sprintf('%s is not a registered element', $key));
+			throw new RuntimeException(sprintf('%s is not a registered element', $key));
 		}
 		// Remove any configurators that were setup
-		if (issset($this->typeConfigurator[$key])) unset($this->typeConfigurator[$key]);
+		if (isset($this->typeConfigurator[$key])) unset($this->typeConfigurator[$key]);
 
 		unset($this->typeMap[$key]);
 	}
@@ -111,15 +112,15 @@ class TypeResolver
 	/**
 	 * Gets the class name for a given key
 	 * @param string $key Can be a class name used to register a class, or its associated key
-	 * @return ElementInterface
-	 * @throws \InvalidArgumentException When a class is not defined for a key
+	 * @return mixed
+	 * @throws InvalidArgumentException When a class is not defined for a key
 	 */
-	public function getClass($key)
+	public function getClass(string $key)
 	{
 		$key = $this->normalizeKey($key);
 
 		if (!$this->has($key)) {
-			throw new \InvalidArgumentException(sprintf('A class is not defined for the key: %s', $key));
+			throw new InvalidArgumentException(sprintf('A class is not defined for the key: %s', $key));
 		}
 
 		return $this->typeMap[$key];
@@ -131,7 +132,7 @@ class TypeResolver
 	 * @param string $key Can be a class name used to register a class, or its associated key
 	 * @return bool
 	 */
-	public function has($key)
+	public function has(string $key): bool
 	{
 		$key = $this->normalizeKey($key);
 
@@ -142,7 +143,7 @@ class TypeResolver
 	 * Gets copy of type map
 	 * @return array
 	 */
-	public function getTypeMap()
+	public function getTypeMap(): array
 	{
 		return $this->typeMap;
 	}
@@ -153,7 +154,7 @@ class TypeResolver
 	 * @param $key
 	 * @return string
 	 */
-	private function normalizeKey($key)
+	private function normalizeKey($key): string
 	{
 		$parts = explode('\\', $key);
 		$key = array_pop($parts);
