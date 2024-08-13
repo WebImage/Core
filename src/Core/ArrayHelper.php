@@ -101,4 +101,9 @@ class ArrayHelper {
 			else if ($itemType == 'object' && !($item instanceof $type)) throw new InvalidArgumentException('Expecting ' . $type . ' but found ' . (is_object($item) ? get_class($item) : 'x' . $itemType));
 		}
 	}
+
+	public static function get(array $arr, string $key, $default=null)
+	{
+		return array_key_exists($key, $arr) ? $arr[$key] : $default;
+	}
 }
