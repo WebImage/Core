@@ -19,26 +19,61 @@ use WebImage\Validation\Rules\RequiredRule;
 
 class RuleResolver
 {
-	private array $typeMap = [];
+	private array $ruleClassMap  = [];
+	/** @var array<RuleProvider> */
+	private array $ruleProviders = [];
+
+	public function __construct()
+	{
+		$this->initRules();
+	}
+
+	protected function initRules(): void
+	{
+	}
 
 	public function addRule(string $name, string $class)
 	{
+		$this->assertValidRuleName($name);
+		$this->ruleClassMap[$name] = $class;
+	}
+
+	public function addRuleProvider(RuleProvider $provider): void
+	{
+		$this->ruleProviders[] = $provider;
+	}
+
+	private function assertValidRuleName(string $name)
+	{
 		if (in_array($name, Validator::getReservedRuleNames())) throw new \InvalidArgumentException('Rule name is reserved: ' . $name);
-		$this->typeMap[$name] = $class;
 	}
 
 	public function hasRule(string $name): bool
 	{
-		return isset($this->typeMap[$name]);
+		return isset($this->ruleClassMap[$name]);
 	}
 
 	public function resolve(string $name, array $data): RuleInterface
 	{
-		if (!isset($this->typeMap[$name])) {
+		$provider = $this->getProviderForName($name);
+		if ($provider !== null) return $provider->resolve($name, $data);
+		// Check if we have a class mapping available
+		if (!isset($this->ruleClassMap[$name])) {
 			throw new \InvalidArgumentException('Rule not found: ' . $name);
 		}
 
-		return $this->resolveFromClassName($this->typeMap[$name], $data);
+		return $this->resolveFromClassName($this->ruleClassMap[$name], $data);
+	}
+
+	private function getProviderForName(string $name): ?RuleProvider
+	{
+		foreach ($this->ruleProviders as $provider) {
+			if ($provider->hasRule($name)) {
+				return $provider;
+			}
+		}
+
+		return null;
 	}
 
 	protected function resolveFromClassName(string $class, array $data): RuleInterface
