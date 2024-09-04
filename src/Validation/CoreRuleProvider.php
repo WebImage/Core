@@ -13,6 +13,7 @@ class CoreRuleProvider extends RuleProvider
 		$this->addRule('equals', Rules\EqualsRule::class);
 		$this->addRule('equalsField', Rules\EqualsFieldValueRule::class);
 		$this->addRule('integer', Rules\IntegerRule::class);
+		$this->addRule('decimal', Rules\DecimalNumberRule::class);
 		$this->addRule('length', Rules\LengthRule::class);
 		$this->addRule('minLength', Rules\LengthMinRule::class);
 		$this->addRule('maxLength', Rules\LengthMaxRule::class);
