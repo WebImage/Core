@@ -36,7 +36,7 @@ class LengthMaxRule extends AbstractRule implements RuleFromArrayFactoryInterfac
 			$min = $rule[0];
 		}
 
-		return new LengthMinRule($min);
+		return new LengthMaxRule($min);
 	}
 
 	public function toArray(): array
