@@ -20,7 +20,7 @@ class LengthMinRule extends AbstractRule implements RuleFromArrayFactoryInterfac
 		$this->min = $min;
 	}
 
-	public function validate($value): bool
+	protected function doValidation($value): bool
 	{
 		return is_string($value) && strlen($value) >= $this->min;
 	}

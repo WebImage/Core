@@ -20,7 +20,7 @@ class MinRule extends AbstractRule implements RuleFromArrayFactoryInterface
 		$this->min = $min;
 	}
 
-	public function validate($value): bool
+	protected function doValidation($value): bool
 	{
 		return is_numeric($value) && $value >= $this->min;
 	}

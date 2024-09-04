@@ -20,7 +20,7 @@ class MaxRule extends AbstractRule implements RuleFromArrayFactoryInterface
 		$this->min = $max;
 	}
 
-	public function validate($value): bool
+	protected function doValidation($value): bool
 	{
 		return is_numeric($value) && $value <= $this->min;
 	}

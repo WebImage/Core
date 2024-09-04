@@ -20,7 +20,7 @@ class LengthMaxRule extends AbstractRule implements RuleFromArrayFactoryInterfac
 		$this->max = $max;
 	}
 
-	public function validate($value): bool
+	protected function doValidation($value): bool
 	{
 		return is_string($value) && strlen($value) <= $this->max;
 	}

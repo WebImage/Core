@@ -8,7 +8,7 @@ class IntegerRule extends AbstractRule
 {
 	protected string $message = '{label} must be an integer';
 
-	public function validate($value): bool
+	protected function doValidation($value): bool
 	{
 		return is_integer($value) ||
 			   (is_string($value) && preg_match('^[0-9]+$', $value));

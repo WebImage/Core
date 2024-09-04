@@ -8,7 +8,7 @@ class ArrayRule extends AbstractRule
 {
 	protected string $message = '{label} must be an array';
 
-	public function validate($value): bool
+	protected function doValidation($value): bool
 	{
 		return is_array($value);
 	}

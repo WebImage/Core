@@ -8,7 +8,7 @@ class NumericRule extends AbstractRule
 {
 	protected string $message = '{label} must be numeric';
 
-	public function validate($value): bool
+	protected function doValidation($value): bool
 	{
 		return is_numeric($value);
 	}

@@ -18,7 +18,7 @@ class ValidValueRule extends AbstractRule implements RuleFromArrayFactoryInterfa
 		$this->validValues = $validValues;
 	}
 
-	public function validate($value): bool
+	protected function doValidation($value): bool
 	{
 		return in_array($value, $this->validValues);
 	}

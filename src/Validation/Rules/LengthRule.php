@@ -17,7 +17,7 @@ class LengthRule extends AbstractRule implements RuleFromArrayFactoryInterface
 		$this->length = $length;
 	}
 
-	public function validate($value): bool
+	protected function doValidation($value): bool
 	{
 		if (!is_string($value)) return false;
 

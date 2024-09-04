@@ -19,7 +19,7 @@ class EqualsRule extends AbstractRule implements RuleFromArrayFactoryInterface
 		$this->equalsValue = $equalsValue;
 	}
 
-	public function validate($value): bool
+	protected function doValidation($value): bool
 	{
 		return $value === $this->equalsValue;
 	}

@@ -10,9 +10,14 @@ class RequiredRule extends AbstractRule implements RuleFromArrayFactoryInterface
 {
 	protected string $message = '{label} is required';
 
-	public function validate($value): bool
+	protected function doValidation($value): bool
 	{
-		return !empty($value);
+		return !$this->isValueEmpty($value);
+	}
+
+	protected function shouldValidateWhenEmpty($value): bool
+	{
+		return true;
 	}
 
 	public static function fromArray(array $rule): RuleInterface

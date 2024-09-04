@@ -48,7 +48,7 @@ class EqualsFieldValueRule extends AbstractRule implements ValidatorRuleInterfac
 		$this->otherFieldLabel = $otherFieldLabel;
 	}
 
-	public function validate($value): bool
+	protected function doValidation($value): bool
 	{
 		throw new RuntimeException(sprintf('%s should only be called from within Validator', __METHOD__));
 	}

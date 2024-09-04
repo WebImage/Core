@@ -9,7 +9,7 @@ class AcceptedRule extends AbstractRule
 {
 	protected string $message = '{label} must be accepted';
 
-	public function validate($value): bool
+	protected function doValidation($value): bool
 	{
 		return $value == 'yes' || $value == 'on' || $value == 1 || $value == true;
 	}
