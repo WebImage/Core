@@ -10,12 +10,12 @@ class PathManager implements PathManagerInterface
 	/**
 	 * @var array
 	 */
-	protected $paths = [];
+	protected array $paths = [];
 
 	/**
 	 * @inheritdoc
 	 */
-	public function add($path)
+	public function add(string $path): void
 	{
 		if (gettype($path) != 'string') {
 			throw new \InvalidArgumentException(sprintf('%s expects paths to be supplied as strings', __METHOD__));
@@ -31,13 +31,13 @@ class PathManager implements PathManagerInterface
 	 *
 	 * Currently string matching only, no validation of physical paths
 	 */
-	public function remove($remove_path)
+	public function remove(string $path): void
 	{
 		$new_paths = [];
 
 		foreach($this->all() as $path) {
-			echo $path . ' - ' . $remove_path . '<br />';
-			if ($path != $remove_path) {
+			echo $path . ' - ' . $path . '<br />';
+			if ($path != $path) {
 				$new_paths[] = $path;
 			}
 		}
@@ -48,7 +48,7 @@ class PathManager implements PathManagerInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function has($path)
+	public function has(string $path): bool
 	{
 		return in_array($path, $this->all());
 	}
@@ -56,7 +56,7 @@ class PathManager implements PathManagerInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function all()
+	public function all(): array
 	{
 		return $this->paths;
 	}
@@ -64,7 +64,7 @@ class PathManager implements PathManagerInterface
 	/**
 	 * @inheritdoc
 	 */
-	public function withAppendedPath($path)
+	public function withAppendedPath($path): PathManager
 	{
 		$p = clone $this;
 		foreach ($p->paths as $k => $v) {

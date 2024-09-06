@@ -2,6 +2,8 @@
 
 namespace WebImage\Paths;
 
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use WebImage\Application\ApplicationInterface;
 use WebImage\Config\Config;
 use WebImage\Container\ServiceProvider\AbstractServiceProvider;
@@ -13,7 +15,8 @@ class PathManagerServiceProvider extends AbstractServiceProvider
 	];
 
 	/**
-	 * @inheritdoc
+	 * @throws ContainerExceptionInterface
+	 * @throws NotFoundExceptionInterface
 	 */
 	public function register(): void
 	{
@@ -27,6 +30,10 @@ class PathManagerServiceProvider extends AbstractServiceProvider
 		$this->getContainer()->addShared(PathManagerInterface::class, $manager);
 	}
 
+	/**
+	 * @throws ContainerExceptionInterface
+	 * @throws NotFoundExceptionInterface
+	 */
 	protected function getPaths()
 	{
 		/** @var ApplicationInterface $app */
