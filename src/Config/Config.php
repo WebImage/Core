@@ -68,11 +68,11 @@ class Config extends Dictionary
 
 		// Traverse through remaining keys
 		if (array_key_exists($key, $this->data)) {
-			if ($this->data[$key] instanceof self) {
+			if (count($keys) == 0) {
+				return true;
+			} else if ($this->data[$key] instanceof self) {
 				return $this->data[$key]->has(implode('.', $keys), $dotTraverse);
 			}
-
-			return count($keys) == 0;
 		}
 
 		return false;

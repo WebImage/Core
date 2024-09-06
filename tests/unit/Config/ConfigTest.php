@@ -95,4 +95,17 @@ class ConfigTest extends TestCase
 
 		$this->assertEquals(new Config(['value' => 'correct']), $config->get('foo.[bar.baz]'));
 	}
+
+	public function testTraversalWithConfigValue()
+	{
+		$config = new Config([
+								 'foo' => [
+									 'bar' => [
+										 'name' => 'baz'
+									 ]
+								 ]
+							 ]);
+
+		$this->assertTrue($config->has('foo.bar'));
+	}
 }
