@@ -8,42 +8,21 @@ use Iterator;
 
 class Dictionary implements Countable, Iterator, ArrayAccess
 {
+	protected bool $immutable = false;
+
 	/**
 	 * @var array Data
 	 */
-	protected $data = array();
+	protected array $data = array();
 
 	public function __construct(array $data=[])
 	{
-		foreach ($data as $key => $value) {
-			if (is_array($value)) {
-				$this->data[$key] = $this->processArray($value);
-			} else {
-				$this->data[$key] = $value;
-			}
-		}
+		$this->setData($data);
 	}
 
-	/**
-	 * Traverse an array and process associative arrays as instances of the static class type
-	 * @param array $values
-	 *
-	 * @return array|static
-	 */
-	private function processArray(array $values)
+	protected function setData(array $data)
 	{
-		if ($this->isAssocArray($values)) return new static($values);
-
-		foreach($values as $key => $val) {
-			if (is_array($val)) $values[$key] = $this->processArray($val);
-		}
-
-		return $values;
-	}
-
-	private function isAssocArray(array $data)
-	{
-		return count($data) > 0 && array_keys($data) !== range(0, count($data) - 1);
+		$this->data = $data;
 	}
 
 	/**
@@ -53,6 +32,8 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 	 */
 	public function merge(Dictionary $merge)
 	{
+		$this->assertNotImmutable();
+
 		foreach ($merge as $key => $value) {
 			if (array_key_exists($key, $this->data)) {
 				if (is_int($key)) {
@@ -81,11 +62,12 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 	/**
 	 * Set a key value
 	 *
-	 * @param string|array[string] $name
+	 * @param string|array<string, mixed> $name
 	 * @param mixed $value
 	 */
 	public function set($name, $value)
 	{
+		$this->assertNotImmutable();
 		if (is_array($name)) {
 			$value = new static($name);
 		}
@@ -102,7 +84,7 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 	 *
 	 * @return array
 	 */
-	public function toArray()
+	public function toArray(): array
 	{
 		$array = array();
 		$data = $this->data;
@@ -157,7 +139,7 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 	 *
 	 * @return array
 	 */
-	public function keys()
+	public function keys(): array
 	{
 		return array_keys($this->data);
 	}
@@ -169,7 +151,7 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 	 * @return boolean The return value will be casted to boolean and then evaluated.
 	 * Returns true on success or false on failure.
 	 */
-	public function valid()
+	public function valid(): bool
 	{
 		return ($this->key() !== null);
 	}
@@ -197,7 +179,7 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 	 * <p>
 	 * The return value will be casted to boolean if non-boolean was returned.
 	 */
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		return $this->__isset($offset);
 	}
@@ -230,6 +212,7 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 	 */
 	public function offsetSet($offset, $value)
 	{
+		$this->assertNotImmutable();
 		$this->__set($offset, $value);
 	}
 
@@ -244,6 +227,7 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 	 */
 	public function offsetUnset($offset)
 	{
+		$this->assertNotImmutable();
 		$this->__unset($offset);
 	}
 
@@ -256,13 +240,14 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 	 * <p>
 	 * The return value is cast to an integer.
 	 */
-	public function count()
+	public function count(): int
 	{
 		return count($this->data);
 	}
 
 	public function __unset($name)
 	{
+		$this->assertNotImmutable();
 		if ($this->has($name)) {
 			unset($this->data[$name]);
 		}
@@ -275,6 +260,7 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 
 	public function __set($name, $value)
 	{
+		$this->assertNotImmutable();
 		$this->set($name, $value);
 	}
 
@@ -288,14 +274,22 @@ class Dictionary implements Countable, Iterator, ArrayAccess
 		return $this->has($name) ? $this->data[$name] : $default;
 	}
 
-	public function has($name)
+	public function has($name): bool
 	{
 		return (array_key_exists($name, $this->data));
 	}
 
 	public function del($name)
 	{
+		$this->assertNotImmutable();
 		$this->__unset($name);
+	}
+
+	protected function assertNotImmutable(): void
+	{
+		if ($this->immutable) {
+			throw new \RuntimeException('This object is immutable');
+		}
 	}
 
 	/**
