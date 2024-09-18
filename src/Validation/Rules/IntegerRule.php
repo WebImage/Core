@@ -11,6 +11,6 @@ class IntegerRule extends AbstractRule
 	protected function doValidation($value): bool
 	{
 		return is_integer($value) ||
-			   (is_string($value) && preg_match('^[0-9]+$', $value));
+			   (is_string($value) && preg_match('/^[0-9]+$/', $value));
 	}
 }
