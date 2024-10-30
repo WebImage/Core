@@ -87,6 +87,7 @@ class Collection implements Countable, Iterator, ArrayAccess
 	}
 
 	/**
+	 * Returns a clone of the original collection with items that have been transformed by the mapper
 	 * @param callable $mapper
 	 * @return $this
 	 */
@@ -101,6 +102,7 @@ class Collection implements Countable, Iterator, ArrayAccess
 	}
 
 	/**
+	 * Returns a clone of the original collection with items that do not pass the filter removed
 	 * @param callable $filterCallback
 	 * @return $this
 	 */
