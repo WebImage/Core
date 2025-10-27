@@ -48,4 +48,8 @@ class DictionaryTest extends TestCase
 
 		$this->assertNull($d['unset']);
 	}
+	/**
+	 * @TODO
+	 * Test scenarios merging different types of arrays with dictionaries and vice-versa
+	 */
 }
